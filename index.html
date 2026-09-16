@@ -69,8 +69,10 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
     <p class="subtitle">Outil d'aide au chiffrage pour ateliers de mécanique</p>
 
     <nav class="app-nav">
-      <button class="nav-btn active" data-view="devis">Nouveau devis</button>
+      <button class="nav-btn active" data-view="accueil">Accueil</button>
+      <button class="nav-btn" data-view="devis">Nouveau devis</button>
       <button class="nav-btn" data-view="historique">Historique</button>
+      <button class="nav-btn" data-view="clients">Clients</button>
       <button class="nav-btn" data-view="matieres">Matières</button>
       <button class="nav-btn" data-view="parametres">Paramètres</button>
     </nav>
@@ -78,8 +80,23 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
   <main>
 
+    <!-- VUE : Accueil -->
+    <section id="view-accueil" class="view active">
+      <h2>Que veux-tu faire ?</h2>
+      <div class="accueil-choix">
+        <button type="button" class="carte-choix" id="btn-accueil-nouveau-devis">
+          <span class="carte-choix-titre">Nouveau devis</span>
+          <span class="carte-choix-desc">Chiffrer une nouvelle pièce ou demande client.</span>
+        </button>
+        <button type="button" class="carte-choix" id="btn-accueil-devis-existant">
+          <span class="carte-choix-titre">Devis existant</span>
+          <span class="carte-choix-desc">Retrouver, consulter ou dupliquer un devis déjà enregistré.</span>
+        </button>
+      </div>
+    </section>
+
     <!-- VUE : Nouveau devis -->
-    <section id="view-devis" class="view active">
+    <section id="view-devis" class="view">
       <form id="form-devis">
 
         <fieldset>
@@ -87,7 +104,9 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
           <div class="field">
             <label for="client">Client</label>
-            <input type="text" id="client" name="client" placeholder="Nom du client">
+            <input type="text" id="client" name="client" list="clients-datalist" placeholder="Nom du client" autocomplete="off">
+            <datalist id="clients-datalist"></datalist>
+            <small class="field-hint"><button type="button" class="lien-discret" data-view-link="clients">Gérer mes clients</button></small>
           </div>
 
           <div class="field">
@@ -165,6 +184,50 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
       <div id="liste-historique">
         <p class="empty-state">Aucun devis enregistré pour l'instant.</p>
       </div>
+    </section>
+
+    <!-- VUE : Clients -->
+    <section id="view-clients" class="view">
+      <h2>Clients</h2>
+      <p class="view-intro">Retrouve ici les clients créés automatiquement depuis tes devis, ou ajoute-en directement. Complète leurs coordonnées quand tu as le temps.</p>
+
+      <div id="liste-clients"></div>
+
+      <fieldset>
+        <legend id="titre-form-client">Ajouter un client</legend>
+
+        <input type="hidden" id="client-id-edition">
+
+        <div class="field">
+          <label for="nouveau-client-nom">Nom</label>
+          <input type="text" id="nouveau-client-nom" placeholder="ex : Atelier Dupont">
+        </div>
+
+        <div class="field">
+          <label for="nouveau-client-email">Email</label>
+          <input type="email" id="nouveau-client-email" placeholder="contact@exemple.fr">
+        </div>
+
+        <div class="field">
+          <label for="nouveau-client-telephone">Téléphone</label>
+          <input type="tel" id="nouveau-client-telephone" placeholder="06 12 34 56 78">
+        </div>
+
+        <div class="field">
+          <label for="nouveau-client-adresse">Adresse</label>
+          <input type="text" id="nouveau-client-adresse" placeholder="Adresse postale">
+        </div>
+
+        <div class="field">
+          <label for="nouveau-client-notes">Notes</label>
+          <input type="text" id="nouveau-client-notes" placeholder="Remarques, préférences, contact habituel…">
+        </div>
+
+        <div class="actions">
+          <button type="button" id="btn-enregistrer-client">Enregistrer</button>
+          <button type="button" id="btn-annuler-edition-client" style="display:none;">Annuler</button>
+        </div>
+      </fieldset>
     </section>
 
     <!-- VUE : Matières -->

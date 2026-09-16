@@ -101,3 +101,61 @@ function supprimerMateriau(nomCategorie, code) {
   sauvegarderMateriaux(donnees);
   return donnees;
 }
+
+/**
+ * Clients — liste modifiable en localStorage.
+ * Se remplit automatiquement au fil des devis (voir app.js : enregistrer un devis
+ * avec un nom de client inconnu crée le client), et peut aussi être gérée à la main
+ * depuis la page "Clients" (ajout, édition, suppression).
+ */
+
+const STORAGE_KEY_CLIENTS = 'ch1ffra_clients';
+
+function chargerClients() {
+  const brut = localStorage.getItem(STORAGE_KEY_CLIENTS);
+  if (!brut) return [];
+  try {
+    return JSON.parse(brut);
+  } catch (e) {
+    console.error('Liste des clients corrompue, réinitialisation.', e);
+    return [];
+  }
+}
+
+function sauvegarderClientsListe(liste) {
+  localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify(liste));
+  return liste;
+}
+
+function trouverClientParNom(nom) {
+  const nomNormalise = (nom || '').trim().toLowerCase();
+  if (!nomNormalise) return null;
+  return chargerClients().find(c => c.nom.trim().toLowerCase() === nomNormalise) || null;
+}
+
+function ajouterClient(client) {
+  const liste = chargerClients();
+  const nouveau = {
+    id: 'client_' + Date.now(),
+    nom: (client.nom || '').trim(),
+    email: client.email || '',
+    telephone: client.telephone || '',
+    adresse: client.adresse || '',
+    notes: client.notes || ''
+  };
+  liste.push(nouveau);
+  sauvegarderClientsListe(liste);
+  return nouveau;
+}
+
+function modifierClient(id, champs) {
+  const liste = chargerClients().map(c => c.id === id ? { ...c, ...champs } : c);
+  sauvegarderClientsListe(liste);
+  return liste;
+}
+
+function supprimerClient(id) {
+  const liste = chargerClients().filter(c => c.id !== id);
+  sauvegarderClientsListe(liste);
+  return liste;
+}

@@ -172,19 +172,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const navButtons = document.querySelectorAll('.nav-btn');
   const views = document.querySelectorAll('.view');
 
+  function allerVersVue(nomVue) {
+    navButtons.forEach(b => b.classList.remove('active'));
+    views.forEach(v => v.classList.remove('active'));
+
+    document.querySelector(`.nav-btn[data-view="${nomVue}"]`)?.classList.add('active');
+    document.getElementById(`view-${nomVue}`)?.classList.add('active');
+
+    if (nomVue === 'historique') afficherHistorique();
+    if (nomVue === 'matieres') afficherPageMatieres();
+    if (nomVue === 'clients') afficherClients();
+    if (nomVue === 'devis') peuplerSelectDevis();
+  }
+
   navButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      navButtons.forEach(b => b.classList.remove('active'));
-      views.forEach(v => v.classList.remove('active'));
-
-      btn.classList.add('active');
-      document.getElementById(`view-${btn.dataset.view}`).classList.add('active');
-
-      if (btn.dataset.view === 'historique') afficherHistorique();
-      if (btn.dataset.view === 'matieres') afficherPageMatieres();
-      if (btn.dataset.view === 'devis') peuplerSelectDevis();
-    });
+    btn.addEventListener('click', () => allerVersVue(btn.dataset.view));
   });
+
+  // Liens discrets vers une autre vue (ex : "Gérer mes clients" depuis le formulaire de devis)
+  document.querySelectorAll('[data-view-link]').forEach(lien => {
+    lien.addEventListener('click', () => allerVersVue(lien.dataset.viewLink));
+  });
+
+  // ============================================================
+  // ACCUEIL
+  // ============================================================
+  document.getElementById('btn-accueil-nouveau-devis').addEventListener('click', () => allerVersVue('devis'));
+  document.getElementById('btn-accueil-devis-existant').addEventListener('click', () => allerVersVue('historique'));
 
   // ============================================================
   // FORMULAIRE DE DEVIS
@@ -249,11 +263,130 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-enregistrer').addEventListener('click', () => {
     const { donnees, total } = calculerEtAfficher();
     sauvegarderDevis({ ...donnees, prixTotal: total });
+
+    // Un nom de client saisi qui n'existe pas encore devient automatiquement un client
+    // (fiche minimale, à compléter plus tard depuis la page Clients).
+    if (donnees.client && !trouverClientParNom(donnees.client)) {
+      ajouterClient({ nom: donnees.client });
+      peuplerDatalistClients();
+    }
+
     alert('Devis enregistré dans l\'historique.');
   });
 
   document.getElementById('btn-export-pdf').addEventListener('click', () => {
     alert('Export PDF : à venir (bibliothèque jsPDF pas encore branchée).');
+  });
+
+  // ============================================================
+  // CLIENTS — autocomplete sur le formulaire de devis + page de gestion
+  // ============================================================
+  function peuplerDatalistClients() {
+    const datalist = document.getElementById('clients-datalist');
+    datalist.innerHTML = chargerClients()
+      .map(c => `<option value="${c.nom}"></option>`)
+      .join('');
+  }
+  peuplerDatalistClients();
+
+  const listeClientsEl = document.getElementById('liste-clients');
+  const inputClientId = document.getElementById('client-id-edition');
+  const inputClientNom = document.getElementById('nouveau-client-nom');
+  const inputClientEmail = document.getElementById('nouveau-client-email');
+  const inputClientTel = document.getElementById('nouveau-client-telephone');
+  const inputClientAdresse = document.getElementById('nouveau-client-adresse');
+  const inputClientNotes = document.getElementById('nouveau-client-notes');
+  const titreFormClient = document.getElementById('titre-form-client');
+  const btnAnnulerEditionClient = document.getElementById('btn-annuler-edition-client');
+
+  function reinitialiserFormClient() {
+    inputClientId.value = '';
+    inputClientNom.value = '';
+    inputClientEmail.value = '';
+    inputClientTel.value = '';
+    inputClientAdresse.value = '';
+    inputClientNotes.value = '';
+    titreFormClient.textContent = 'Ajouter un client';
+    btnAnnulerEditionClient.style.display = 'none';
+  }
+
+  function afficherClients() {
+    const liste = chargerClients();
+
+    if (liste.length === 0) {
+      listeClientsEl.innerHTML = '<p class="empty-state">Aucun client pour l\'instant — il en apparaîtra un dès ton premier devis enregistré, ou ajoute-en un ci-dessous.</p>';
+      return;
+    }
+
+    listeClientsEl.innerHTML = liste.map(c => `
+      <div class="client-item" data-id="${c.id}">
+        <div class="client-item-info">
+          <strong>${c.nom}</strong>
+          ${[c.email, c.telephone].filter(Boolean).join(' · ') ? `<br><small>${[c.email, c.telephone].filter(Boolean).join(' · ')}</small>` : ''}
+          ${c.adresse ? `<br><small>${c.adresse}</small>` : ''}
+          ${c.notes ? `<br><small>${c.notes}</small>` : ''}
+        </div>
+        <div class="client-item-actions">
+          <button class="btn-modifier-client">Modifier</button>
+          <button class="btn-supprimer-client">Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  listeClientsEl.addEventListener('click', (e) => {
+    const item = e.target.closest('.client-item');
+    if (!item) return;
+    const { id } = item.dataset;
+
+    if (e.target.matches('.btn-modifier-client')) {
+      const client = chargerClients().find(c => c.id === id);
+      if (!client) return;
+      inputClientId.value = client.id;
+      inputClientNom.value = client.nom;
+      inputClientEmail.value = client.email || '';
+      inputClientTel.value = client.telephone || '';
+      inputClientAdresse.value = client.adresse || '';
+      inputClientNotes.value = client.notes || '';
+      titreFormClient.textContent = `Modifier ${client.nom}`;
+      btnAnnulerEditionClient.style.display = 'inline-block';
+    }
+
+    if (e.target.matches('.btn-supprimer-client')) {
+      const client = chargerClients().find(c => c.id === id);
+      if (!confirm(`Supprimer le client "${client?.nom}" ? (les devis déjà enregistrés ne sont pas supprimés)`)) return;
+      supprimerClient(id);
+      afficherClients();
+      peuplerDatalistClients();
+      if (inputClientId.value === id) reinitialiserFormClient();
+    }
+  });
+
+  btnAnnulerEditionClient.addEventListener('click', reinitialiserFormClient);
+
+  document.getElementById('btn-enregistrer-client').addEventListener('click', () => {
+    const nom = inputClientNom.value.trim();
+    if (!nom) {
+      alert('Le nom du client est obligatoire.');
+      return;
+    }
+    const champs = {
+      nom,
+      email: inputClientEmail.value.trim(),
+      telephone: inputClientTel.value.trim(),
+      adresse: inputClientAdresse.value.trim(),
+      notes: inputClientNotes.value.trim()
+    };
+
+    if (inputClientId.value) {
+      modifierClient(inputClientId.value, champs);
+    } else {
+      ajouterClient(champs);
+    }
+
+    reinitialiserFormClient();
+    afficherClients();
+    peuplerDatalistClients();
   });
 
   // ============================================================

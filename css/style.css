@@ -285,6 +285,67 @@ input[type="number"],
   color: var(--text-muted);
 }
 
+.lien-discret {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.lien-discret:hover {
+  color: var(--accent);
+}
+
+/* ---------- Accueil ---------- */
+
+.accueil-choix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.carte-choix {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  text-align: left;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.carte-choix:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px -10px var(--accent-glow);
+}
+
+.carte-choix-titre {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.carte-choix-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .accueil-choix {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Resultat -- le moment fort de l'ecran ---------- */
 
 .result-box {
@@ -389,6 +450,52 @@ input[type="number"],
 
 .devis-item small {
   color: var(--text-muted);
+}
+
+/* ---------- Clients ---------- */
+
+.client-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.client-item-info strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.client-item-info small {
+  color: var(--text-muted);
+}
+
+.client-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.client-item-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0.15rem 0.3rem;
+  color: var(--text-muted);
+}
+
+.client-item-actions .btn-modifier-client:hover {
+  color: var(--accent);
+}
+
+.client-item-actions .btn-supprimer-client {
+  color: var(--danger);
 }
 
 /* ---------- Matieres -- fiche / liste de pieces ---------- */
