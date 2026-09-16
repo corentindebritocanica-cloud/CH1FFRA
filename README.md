@@ -27,7 +27,8 @@
   - Sauvegarde du devis dans un historique local (`localStorage`, pas encore Firebase — cohérent avec la section 5bis)
   - **Écran d'accueil** au démarrage : deux choix, "Nouveau devis" ou "Devis existant" (renvoie vers le formulaire ou l'historique)
   - **Page "Clients"** : liste modifiable (nom, email, téléphone, adresse, notes). Un client saisi dans un devis et qui n'existe pas encore est **créé automatiquement** (fiche minimale, à compléter plus tard) — pas de double saisie. Le champ "Client" du formulaire de devis propose ces clients en autocomplétion (`<datalist>`), avec un lien direct vers la page de gestion
-  - Navigation entre 6 vues : Accueil / Nouveau devis / Historique / Clients / Matières / Paramètres
+  - **Historique** : suppression possible d'un devis (bouton ✕ par ligne, confirmation demandée)
+  - **Navigation simplifiée** : seuls "Accueil" et "Paramètres" sont des onglets. Paramètres est organisé en deux sections — "Données" (Historique / Clients / Matières, en cartes) et "Préférences" (valeurs par défaut, à venir). Chaque page secondaire a un lien "← Accueil" pour revenir
 - Note technique : la bibliothèque de matières est structurée par catégorie → liste de `{code, nom, densite, prixKg}`, stockée en `localStorage` sous forme d'un objet modifiable. Cette structure est pensée pour se transposer facilement plus tard dans une collection Firestore `materiaux` (un document par matière, un champ catégorie), afin d'avoir la bibliothèque en ligne et partagée entre les appareils de l'utilisateur une fois Firebase branché. Les clients suivent la même logique : liste plate de `{id, nom, email, telephone, adresse, notes}`, prête à devenir une collection Firestore `clients`.
 - Pas encore fait :
   - Export PDF réel (bouton présent, jsPDF pas encore branché)

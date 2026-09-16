@@ -310,7 +310,7 @@ input[type="number"],
 
 .accueil-choix {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 1rem;
 }
 
@@ -442,6 +442,10 @@ input[type="number"],
 /* ---------- Historique ---------- */
 
 .devis-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
   padding: 0.85rem 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
@@ -455,6 +459,20 @@ input[type="number"],
 
 .devis-item small {
   color: var(--text-muted);
+}
+
+.btn-supprimer-devis {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 0.1rem 0.3rem;
+  flex-shrink: 0;
+}
+
+.btn-supprimer-devis:hover {
+  color: var(--danger);
 }
 
 /* ---------- Clients ---------- */

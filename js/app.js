@@ -402,13 +402,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     conteneur.innerHTML = liste.map(devis => `
-      <div class="devis-item">
-        <strong>${devis.client || 'Client non renseigné'}</strong>
-        — ${devis.matiere}, ${devis.operation}, qté ${devis.quantite}
-        — ${formaterPrix(devis.prixTotal)}
-        <br><small>${new Date(devis.date).toLocaleString('fr-FR')}</small>
+      <div class="devis-item" data-id="${devis.id}">
+        <div class="devis-item-info">
+          <strong>${devis.client || 'Client non renseigné'}</strong>
+          — ${devis.matiere}, ${devis.operation}, qté ${devis.quantite}
+          — ${formaterPrix(devis.prixTotal)}
+          <br><small>${new Date(devis.date).toLocaleString('fr-FR')}</small>
+        </div>
+        <button class="btn-supprimer-devis" title="Supprimer ce devis">✕</button>
       </div>
     `).join('');
   }
+
+  document.getElementById('liste-historique').addEventListener('click', (e) => {
+    if (!e.target.matches('.btn-supprimer-devis')) return;
+    const item = e.target.closest('.devis-item');
+    const { id } = item.dataset;
+    if (!confirm('Supprimer définitivement ce devis de l\'historique ?')) return;
+    supprimerDevis(Number(id));
+    afficherHistorique();
+  });
 
 });
