@@ -50,25 +50,42 @@ html {
   pointer-events: none;
 }
 
+.loading-logo-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
 .loading-logo {
+  display: block;
   width: 240px;
   height: auto;
+  color: var(--text);
+  clip-path: inset(0 100% 0 0);
+  animation: revele-logo 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation-delay: 0.2s;
 }
 
-.loading-logo path {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke-dashoffset 0.8s cubic-bezier(0.65, 0, 0.35, 1),
-              fill 0.45s ease,
-              stroke-opacity 0.45s ease;
+@keyframes revele-logo {
+  to { clip-path: inset(0 0 0 0); }
 }
 
-.loading-logo path.loading-logo-remplie {
-  fill: var(--text);
-  stroke-opacity: 0;
+.loading-scanline {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: 0;
+  width: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 14px 2px var(--accent-glow);
+  opacity: 0;
+  animation: balayage 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+@keyframes balayage {
+  0%   { left: 0; opacity: 1; }
+  92%  { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
 }
 
 .loading-caption {
@@ -83,8 +100,12 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loading-logo path {
-    transition: fill 0.3s ease;
+  .loading-logo {
+    clip-path: none;
+    animation: none;
+  }
+  .loading-scanline {
+    display: none;
   }
   .loading-caption {
     animation: none;

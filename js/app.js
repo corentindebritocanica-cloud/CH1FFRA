@@ -14,11 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ecran = document.getElementById('loading-screen');
     if (!ecran) return;
 
-    const chemins = ecran.querySelectorAll('.loading-logo path');
     const reduceMotion = window.matchMedia
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false;
-    const supportTraceSVG = chemins.length > 0 && typeof chemins[0].getTotalLength === 'function';
 
     function masquerEcran(delai) {
       setTimeout(() => {
@@ -27,38 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }, delai);
     }
 
-    if (reduceMotion || !supportTraceSVG) {
-      chemins.forEach(p => p.classList.add('loading-logo-remplie'));
-      masquerEcran(350);
-      return;
-    }
-
-    // Préparer chaque lettre pour l'effet de tracé (longueur réelle du contour)
-    chemins.forEach(p => {
-      const longueur = p.getTotalLength();
-      p.style.strokeDasharray = longueur;
-      p.style.strokeDashoffset = longueur;
-    });
-
-    // Déclencher le tracé, lettre par lettre — comme une tête de découpe qui avance
-    requestAnimationFrame(() => {
-      chemins.forEach((p, i) => {
-        p.style.transitionDelay = `${i * 80}ms`;
-        p.style.strokeDashoffset = '0';
-      });
-    });
-
-    const dureeTrace = 800 + (chemins.length - 1) * 80;
-
-    // Une fois le contour tracé, remplissage plein (la pièce est détourée)
-    setTimeout(() => {
-      chemins.forEach((p, i) => {
-        p.style.transitionDelay = `${i * 40}ms`;
-        p.classList.add('loading-logo-remplie');
-      });
-    }, dureeTrace);
-
-    masquerEcran(dureeTrace + 700);
+    // La révélation (logo + ligne de balayage) est pilotée en CSS ;
+    // ici on gère seulement la durée d'affichage et le repli sans animation.
+    masquerEcran(reduceMotion ? 350 : 1700);
   })();
 
   // ============================================================
