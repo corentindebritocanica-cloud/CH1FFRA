@@ -4,6 +4,23 @@
 
 ---
 
+## 0. ÉTAT D'AVANCEMENT ACTUEL
+
+- **Validation terrain (section 6, étape 1)** : pas encore faite — développement lancé en parallèle.
+- **Squelette du projet créé** : `index.html`, `css/style.css`, `js/calcul.js`, `js/storage.js`, `js/app.js`.
+- Fonctionnel pour l'instant :
+  - Formulaire de devis (matière, épaisseur, quantité, opération, temps/taux/prix matière/marge)
+  - Calcul du prix estimé (formule simple : temps × taux horaire + poids × prix matière, puis marge)
+  - Sauvegarde du devis dans un historique local (`localStorage`, pas encore Firebase — cohérent avec la section 5bis)
+  - Navigation entre 3 vues : Nouveau devis / Historique / Paramètres
+- Pas encore fait :
+  - Export PDF réel (bouton présent, jsPDF pas encore branché)
+  - Vue "Paramètres" (taux horaire/prix matière par défaut)
+  - Parsing STEP et OCR (prévus en V2, section 5bis)
+  - Firebase (auth, Firestore, Storage)
+
+---
+
 ## 1. À QUOI SERT L'APP (en une phrase)
 
 Un outil web simple où un atelier ou un bureau d'études upload un plan (PDF/image) ou un fichier 3D (STEP), et l'outil aide à préparer un pré-devis plus vite en extrayant automatiquement les infos utiles (dimensions, matière, quantité de perçages, tolérances) et en proposant une estimation de temps/coût que l'utilisateur ajuste et valide.
