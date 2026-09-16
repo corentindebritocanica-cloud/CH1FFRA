@@ -15,7 +15,8 @@
   --accent-dark: #1d4ed8;
   --accent-glow: rgba(47, 111, 237, 0.35);
   --danger: #e5484d;
-  --radius: 4px;
+  --radius: 6px;
+  --shadow-bouton: 0 2px 6px rgba(0, 0, 0, 0.35);
 
   --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
@@ -24,6 +25,26 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* Base pour tous les boutons — les styles plus spécifiques (.nav-btn, .lien-discret,
+   .carte-choix, .btn-supprimer-*...) reprennent la main via leur classe. */
+button {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--shadow-bouton);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+button:hover {
+  border-color: var(--text-muted);
 }
 
 html {
@@ -241,6 +262,7 @@ body {
 .nav-btn {
   border: none;
   background: none;
+  box-shadow: none;
   cursor: pointer;
   color: var(--text-muted);
   font-family: var(--font-body);
@@ -371,6 +393,7 @@ input[type="number"],
 .lien-discret {
   background: none;
   border: none;
+  box-shadow: none;
   padding: 0;
   color: var(--text-muted);
   font-family: var(--font-body);
@@ -406,6 +429,7 @@ input[type="number"],
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  box-shadow: none;
   padding: 1.5rem 1.25rem;
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -507,6 +531,7 @@ input[type="number"],
 #btn-export-pdf {
   background: transparent;
   border: 1px solid transparent;
+  box-shadow: none;
   color: var(--text-muted);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -547,6 +572,7 @@ input[type="number"],
 .btn-supprimer-devis {
   background: none;
   border: none;
+  box-shadow: none;
   cursor: pointer;
   color: var(--text-muted);
   font-size: 0.9rem;
@@ -587,6 +613,7 @@ input[type="number"],
 .client-item-actions button {
   background: none;
   border: none;
+  box-shadow: none;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 0.78rem;
@@ -631,6 +658,7 @@ input[type="number"],
 .btn-supprimer-matiere {
   background: none;
   border: none;
+  box-shadow: none;
   color: var(--danger);
   cursor: pointer;
   font-family: var(--font-body);
@@ -717,6 +745,7 @@ input[type="number"],
   flex-shrink: 0;
   background: none;
   border: none;
+  box-shadow: none;
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.9rem;
