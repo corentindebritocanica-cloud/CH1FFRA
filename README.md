@@ -10,10 +10,12 @@
 - **Squelette du projet créé** : `index.html`, `css/style.css`, `js/calcul.js`, `js/storage.js`, `js/app.js`.
 - Fonctionnel pour l'instant :
   - Formulaire de devis (matière, épaisseur, quantité, opération, temps/taux/prix matière/marge)
-  - Bibliothèque de matières avec désignations normalisées (`js/materiaux.js`) : aciers, aciers inox (ex. X2CrNiMo17-12-2 / 316L), fontes, aluminiums, plastiques techniques (PTFE, POM, PE, PA6/66, PEEK, PMMA, PC, PVC) — chaque matière a une densité indicative affichée à la sélection, réutilisable plus tard pour le calcul de poids automatique depuis un fichier STEP
+  - **Page dédiée "Matières"** : bibliothèque modifiable (ajout, édition, suppression de matières et de catégories entières), avec désignations normalisées (aciers, aciers inox ex. X2CrNiMo17-12-2 / 316L, fontes, aluminiums, plastiques techniques PTFE/POM/PE/PA6-66/PEEK/PMMA/PC/PVC), densité et prix indicatif au kg éditables pour chaque matière — toute modification se répercute immédiatement dans le menu déroulant du formulaire de devis
+  - Prix indicatifs au kg pré-remplis à partir d'une estimation de marché 2026 (à ajuster selon les fournisseurs réels de l'atelier — les cours des métaux et plastiques varient constamment)
   - Calcul du prix estimé (formule simple : temps × taux horaire + poids × prix matière, puis marge)
   - Sauvegarde du devis dans un historique local (`localStorage`, pas encore Firebase — cohérent avec la section 5bis)
-  - Navigation entre 3 vues : Nouveau devis / Historique / Paramètres
+  - Navigation entre 4 vues : Nouveau devis / Historique / Matières / Paramètres
+- Note technique : la bibliothèque de matières est structurée par catégorie → liste de `{code, nom, densite, prixKg}`, stockée en `localStorage` sous forme d'un objet modifiable. Cette structure est pensée pour se transposer facilement plus tard dans une collection Firestore `materiaux` (un document par matière, un champ catégorie), afin d'avoir la bibliothèque en ligne et partagée entre les appareils de l'utilisateur une fois Firebase branché.
 - Pas encore fait :
   - Export PDF réel (bouton présent, jsPDF pas encore branché)
   - Vue "Paramètres" (taux horaire/prix matière par défaut)

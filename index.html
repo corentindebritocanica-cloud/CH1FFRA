@@ -16,6 +16,7 @@
   <nav class="app-nav">
     <button class="nav-btn active" data-view="devis">Nouveau devis</button>
     <button class="nav-btn" data-view="historique">Historique</button>
+    <button class="nav-btn" data-view="matieres">Matières</button>
     <button class="nav-btn" data-view="parametres">Paramètres</button>
   </nav>
 
@@ -107,6 +108,50 @@
       <div id="liste-historique">
         <p class="empty-state">Aucun devis enregistré pour l'instant.</p>
       </div>
+    </section>
+
+    <!-- VUE : Matières -->
+    <section id="view-matieres" class="view">
+      <h2>Bibliothèque de matières</h2>
+      <p class="view-intro">Modifie les densités et prix indicatifs, ajoute tes propres matières ou catégories. Ces valeurs servent de base au formulaire de devis (le prix matière reste ajustable au cas par cas).</p>
+
+      <div id="categories-matieres"></div>
+
+      <fieldset>
+        <legend>Ajouter une matière</legend>
+
+        <div class="field">
+          <label for="nouvelle-categorie-select">Catégorie</label>
+          <select id="nouvelle-categorie-select"></select>
+        </div>
+
+        <div class="field" id="champ-nouvelle-categorie" style="display:none;">
+          <label for="nouvelle-categorie-nom">Nom de la nouvelle catégorie</label>
+          <input type="text" id="nouvelle-categorie-nom" placeholder="ex : Titane">
+        </div>
+
+        <div class="field">
+          <label for="nouvelle-matiere-code">Désignation</label>
+          <input type="text" id="nouvelle-matiere-code" placeholder="ex : Ti-6Al-4V">
+        </div>
+
+        <div class="field">
+          <label for="nouvelle-matiere-nom">Nom usuel</label>
+          <input type="text" id="nouvelle-matiere-nom" placeholder="ex : Alliage de titane aéronautique">
+        </div>
+
+        <div class="field">
+          <label for="nouvelle-matiere-densite">Densité (g/cm³)</label>
+          <input type="number" id="nouvelle-matiere-densite" step="0.01" min="0">
+        </div>
+
+        <div class="field">
+          <label for="nouvelle-matiere-prix">Prix indicatif (€/kg)</label>
+          <input type="number" id="nouvelle-matiere-prix" step="0.01" min="0">
+        </div>
+
+        <button type="button" id="btn-ajouter-matiere">Ajouter la matière</button>
+      </fieldset>
     </section>
 
     <!-- VUE : Paramètres -->
