@@ -1,23 +1,21 @@
 /* ==========================================================
-   Ch1ffra — design tokens
-   Inspiration : fabianfallend.com (typo massive, noir confiant,
-   minimalisme cinematographique) adapte a un outil de saisie
-   quotidien -- bandeau sombre pour le "chrome", surface de travail
-   claire facon papier technique / bleu de mecanicien.
+   Ch1ffra — design tokens (v2 : theme sombre + fond fluide)
+   Inspiration : bitnomial.com (plateforme sombre, fond anime
+   fluide en arriere-plan, typo nette, ambiance "pro").
    ========================================================== */
 
 :root {
-  --paper: #eef1f4;
-  --grid-line: rgba(25, 87, 219, 0.055);
-  --paper-line: #ccd4dc;
-  --ink: #14181c;
-  --ink-muted: #5b6670;
-  --panel-dark: #14161a;
-  --panel-dark-line: #2a2d33;
-  --accent: #1957db;
-  --accent-dark: #123f9e;
-  --danger: #b4351e;
-  --radius: 2px;
+  --bg: #0a0c10;
+  --bg-elevated: #14171c;
+  --bg-elevated-2: #1b1f26;
+  --border: #262b33;
+  --text: #f2f4f7;
+  --text-muted: #8993a1;
+  --accent: #2f6fed;
+  --accent-dark: #1d4ed8;
+  --accent-glow: rgba(47, 111, 237, 0.35);
+  --danger: #e5484d;
+  --radius: 4px;
 
   --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
@@ -28,22 +26,88 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: var(--font-body);
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 28px 28px;
-  color: var(--ink);
+html {
+  background: var(--bg);
 }
 
-/* ---------- En-tete (bandeau sombre) ---------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  position: relative;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- Fond fluide anime ---------- */
+
+.fluid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fluid-bg span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.32;
+  mix-blend-mode: screen;
+  animation: drift ease-in-out infinite;
+}
+
+.fluid-bg span:nth-child(1) {
+  width: 520px;
+  height: 520px;
+  background: #2f6fed;
+  top: -140px;
+  left: -100px;
+  animation-duration: 24s;
+}
+
+.fluid-bg span:nth-child(2) {
+  width: 460px;
+  height: 460px;
+  background: #17b8a6;
+  bottom: -160px;
+  right: -90px;
+  animation-duration: 30s;
+  animation-delay: -6s;
+}
+
+.fluid-bg span:nth-child(3) {
+  width: 380px;
+  height: 380px;
+  background: #7c5cff;
+  top: 28%;
+  right: 8%;
+  animation-duration: 34s;
+  animation-delay: -14s;
+}
+
+@keyframes drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(40px, -30px) scale(1.08); }
+  66%  { transform: translate(-30px, 25px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fluid-bg span {
+    animation: none;
+  }
+}
+
+/* ---------- En-tete ---------- */
 
 .app-header {
-  background: var(--panel-dark);
-  color: #fff;
+  position: relative;
+  z-index: 1;
+  background: rgba(20, 23, 28, 0.75);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
   padding: 1.75rem 1.5rem 0;
 }
 
@@ -64,7 +128,7 @@ body {
 .subtitle {
   margin: 0.6rem 0 1.5rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted);
   opacity: 0;
   animation: fade-in 0.6s ease forwards;
   animation-delay: 0.35s;
@@ -87,7 +151,7 @@ body {
 .app-nav {
   display: flex;
   gap: 1.5rem;
-  border-top: 1px solid var(--panel-dark-line);
+  border-top: 1px solid var(--border);
   padding-top: 0.1rem;
 }
 
@@ -95,7 +159,7 @@ body {
   border: none;
   background: none;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted);
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 0.9rem;
@@ -105,11 +169,11 @@ body {
 }
 
 .nav-btn:hover {
-  color: #fff;
+  color: var(--text);
 }
 
 .nav-btn.active {
-  color: #fff;
+  color: var(--text);
 }
 
 .nav-btn.active::after {
@@ -120,11 +184,14 @@ body {
   bottom: -1px;
   height: 2px;
   background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
-/* ---------- Zone de travail (papier technique) ---------- */
+/* ---------- Zone de travail ---------- */
 
 main {
+  position: relative;
+  z-index: 1;
   max-width: 620px;
   margin: 0 auto;
   padding: 2.25rem 1.25rem 3rem;
@@ -143,10 +210,11 @@ main {
   font-weight: 600;
   font-size: 1.3rem;
   margin: 0 0 0.75rem;
+  color: var(--text);
 }
 
 .view-intro {
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin: -0.25rem 0 1.5rem;
   max-width: 46ch;
@@ -164,10 +232,10 @@ legend {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--ink);
+  color: var(--text);
   padding: 0 0 0.5rem;
   margin-bottom: 1.1rem;
-  border-bottom: 1px solid var(--paper-line);
+  border-bottom: 1px solid var(--border);
 }
 
 .field {
@@ -179,18 +247,22 @@ legend {
 .field label {
   font-size: 0.78rem;
   margin-bottom: 0.3rem;
-  color: var(--ink-muted);
+  color: var(--text-muted);
 }
 
 .field input,
 .field select {
   padding: 0.55rem 0.65rem;
-  border: 1px solid var(--paper-line);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: #fff;
-  color: var(--ink);
+  background: var(--bg-elevated);
+  color: var(--text);
   font-family: var(--font-body);
   font-size: 1rem;
+}
+
+.field input::placeholder {
+  color: var(--text-muted);
 }
 
 .field input:focus,
@@ -210,23 +282,25 @@ input[type="number"],
 .field-hint {
   margin-top: 0.35rem;
   font-size: 0.78rem;
-  color: var(--ink-muted);
+  color: var(--text-muted);
 }
 
 /* ---------- Resultat -- le moment fort de l'ecran ---------- */
 
 .result-box {
-  background: var(--ink);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.75rem 1.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
+  box-shadow: 0 0 50px -12px var(--accent-glow);
 }
 
 .result-box p {
   margin: 0;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted);
 }
 
 .result-box strong {
@@ -236,7 +310,7 @@ input[type="number"],
   font-weight: 600;
   font-size: 2.5rem;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--text);
 }
 
 /* ---------- Actions -- hierarchie primaire / secondaire / tertiaire ---------- */
@@ -256,13 +330,14 @@ input[type="number"],
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 #btn-calculer {
   background: var(--accent);
   border: 1px solid var(--accent);
   color: #fff;
+  box-shadow: 0 0 20px -4px var(--accent-glow);
 }
 
 #btn-calculer:hover {
@@ -272,28 +347,28 @@ input[type="number"],
 
 #btn-enregistrer {
   background: transparent;
-  border: 1px solid var(--paper-line);
-  color: var(--ink);
+  border: 1px solid var(--border);
+  color: var(--text);
 }
 
 #btn-enregistrer:hover {
-  border-color: var(--ink);
+  border-color: var(--text-muted);
 }
 
 #btn-export-pdf {
   background: transparent;
   border: 1px solid transparent;
-  color: var(--ink-muted);
+  color: var(--text-muted);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 #btn-export-pdf:hover {
-  color: var(--ink);
+  color: var(--text);
 }
 
 .empty-state {
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-style: italic;
   font-size: 0.9rem;
 }
@@ -302,17 +377,18 @@ input[type="number"],
 
 .devis-item {
   padding: 0.85rem 0;
-  border-bottom: 1px solid var(--paper-line);
+  border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
 }
 
 .devis-item strong {
   font-family: var(--font-display);
   font-weight: 600;
+  color: var(--text);
 }
 
 .devis-item small {
-  color: var(--ink-muted);
+  color: var(--text-muted);
 }
 
 /* ---------- Matieres -- fiche / liste de pieces ---------- */
@@ -325,7 +401,7 @@ input[type="number"],
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 1px solid var(--paper-line);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.4rem;
   margin-bottom: 0.6rem;
 }
@@ -335,7 +411,7 @@ input[type="number"],
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.05rem;
-  color: var(--ink);
+  color: var(--text);
 }
 
 .btn-supprimer-categorie,
@@ -359,18 +435,19 @@ input[type="number"],
 
 .table-matieres th {
   text-align: left;
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-weight: 500;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 0 0.5rem 0.4rem 0;
-  border-bottom: 1px solid var(--paper-line);
+  border-bottom: 1px solid var(--border);
 }
 
 .table-matieres td {
   padding: 0.5rem 0.5rem 0.5rem 0;
-  border-bottom: 1px solid var(--paper-line);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
 }
 
 .table-matieres td:first-child {
@@ -381,9 +458,10 @@ input[type="number"],
 .table-matieres input {
   width: 5rem;
   padding: 0.35rem 0.4rem;
-  border: 1px solid var(--paper-line);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--bg-elevated-2);
+  color: var(--text);
   font-family: var(--font-mono);
   font-size: 0.85rem;
 }
@@ -391,11 +469,13 @@ input[type="number"],
 /* ---------- Pied de page ---------- */
 
 .app-footer {
+  position: relative;
+  z-index: 1;
   text-align: center;
   padding: 2rem 1.5rem;
-  color: var(--ink-muted);
+  color: var(--text-muted);
   font-size: 0.78rem;
-  border-top: 1px solid var(--paper-line);
+  border-top: 1px solid var(--border);
 }
 
 /* ---------- Responsive ---------- */
