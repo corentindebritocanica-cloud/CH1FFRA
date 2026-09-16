@@ -48,39 +48,26 @@ body {
 }
 
 .wordmark {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 2rem;
-  letter-spacing: -0.02em;
-}
-
-.wordmark span {
-  display: inline-block;
+  display: block;
+  width: 180px;
+  height: auto;
+  margin: 0 0 0 -2px;
   opacity: 0;
-  animation: letter-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: logo-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-.wordmark span:nth-child(1) { animation-delay: 0.02s; }
-.wordmark span:nth-child(2) { animation-delay: 0.07s; }
-.wordmark span:nth-child(3) { animation-delay: 0.12s; }
-.wordmark span:nth-child(4) { animation-delay: 0.17s; }
-.wordmark span:nth-child(5) { animation-delay: 0.22s; }
-.wordmark span:nth-child(6) { animation-delay: 0.27s; }
-.wordmark span:nth-child(7) { animation-delay: 0.32s; }
-
-@keyframes letter-in {
-  from { opacity: 0; transform: translateY(0.6em); }
+@keyframes logo-in {
+  from { opacity: 0; transform: translateY(0.5em); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .subtitle {
-  margin: 0.4rem 0 1.5rem;
+  margin: 0.6rem 0 1.5rem;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.55);
   opacity: 0;
   animation: fade-in 0.6s ease forwards;
-  animation-delay: 0.4s;
+  animation-delay: 0.35s;
 }
 
 @keyframes fade-in {
@@ -89,7 +76,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wordmark span,
+  .wordmark,
   .subtitle {
     animation: none;
     opacity: 1;
@@ -415,7 +402,7 @@ input[type="number"],
 
 @media (max-width: 480px) {
   .wordmark {
-    font-size: 1.6rem;
+    width: 150px;
   }
 
   .result-box strong {

@@ -1,6 +1,8 @@
+<img src="assets/logo.svg" alt="Ch1ffra" width="220" />
+
 # PLAN COMPLET — Ch1ffra, outil d'aide au chiffrage pour petites structures mécaniques
 
-*Nom retenu : **Ch1ffra** — slug GitHub : `ch1ffra`*
+*Nom retenu : **CH1FFRA** — slug GitHub : `ch1ffra`*
 
 ---
 
