@@ -4,7 +4,49 @@
  * L'export PDF (bouton présent, non branché) sera ajouté avec jsPDF dans une étape suivante.
  */
 
+/**
+ * Notification discrète (remplace les alert() natifs du navigateur).
+ * Fonction globale : accessible aussi depuis pdf.js.
+ */
+function toast(message, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = message;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('toast-visible'));
+  setTimeout(() => {
+    el.classList.remove('toast-visible');
+    setTimeout(() => el.remove(), 300);
+  }, 2800);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+
+  // ============================================================
+  // THÈME — clair / sombre, persisté en localStorage
+  // ============================================================
+  const STORAGE_KEY_THEME = 'ch1ffra_theme';
+
+  function appliquerTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    document.getElementById('btn-theme-sombre')?.classList.toggle('active', theme !== 'light');
+    document.getElementById('btn-theme-clair')?.classList.toggle('active', theme === 'light');
+  }
+
+  appliquerTheme(localStorage.getItem(STORAGE_KEY_THEME) || 'dark');
+
+  document.getElementById('btn-theme-sombre').addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY_THEME, 'dark');
+    appliquerTheme('dark');
+  });
+  document.getElementById('btn-theme-clair').addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY_THEME, 'light');
+    appliquerTheme('light');
+  });
 
   // ============================================================
   // ÉCRAN DE CHARGEMENT — le logo se trace comme une découpe laser,
@@ -86,31 +128,30 @@ document.addEventListener('DOMContentLoaded', () => {
   function afficherPageMatieres() {
     const donnees = chargerMateriaux();
 
-    // Tableaux par catégorie
+    // Fiches par catégorie (plutôt qu'un tableau à 7 colonnes, illisible sur petit écran)
     conteneurCategories.innerHTML = Object.entries(donnees).map(([categorie, liste]) => `
       <div class="categorie-bloc">
         <div class="categorie-header">
           <h3>${categorie}</h3>
           <button class="btn-supprimer-categorie" data-categorie="${categorie}">Supprimer la catégorie</button>
         </div>
-        <table class="table-matieres">
-          <thead>
-            <tr><th>Désignation</th><th>Nom usuel</th><th>Densité (g/cm³)</th><th>Prix (€/kg)</th><th>Fournisseur</th><th>Réf. fournisseur</th><th></th></tr>
-          </thead>
-          <tbody>
-            ${liste.map(mat => `
-              <tr data-categorie="${categorie}" data-code="${mat.code}">
-                <td>${mat.code}</td>
-                <td>${mat.nom || ''}</td>
-                <td><input type="number" step="0.01" min="0" class="input-densite" value="${mat.densite ?? ''}"></td>
-                <td><input type="number" step="0.01" min="0" class="input-prix" value="${mat.prixKg ?? ''}"></td>
-                <td><input type="text" class="input-fournisseur" value="${mat.fournisseur ?? ''}" placeholder="—"></td>
-                <td><input type="text" class="input-ref-fournisseur" value="${mat.refFournisseur ?? ''}" placeholder="—"></td>
-                <td><button class="btn-supprimer-matiere" title="Supprimer">✕</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+        ${liste.map(mat => `
+          <div class="matiere-carte" data-categorie="${categorie}" data-code="${mat.code}">
+            <div class="matiere-carte-header">
+              <div>
+                <strong>${mat.code}</strong>
+                ${mat.nom ? `<span class="matiere-carte-nom">${mat.nom}</span>` : ''}
+              </div>
+              <button class="btn-supprimer-matiere" title="Supprimer">✕</button>
+            </div>
+            <div class="matiere-carte-champs">
+              <label>Densité (g/cm³)<input type="number" step="0.01" min="0" class="input-densite" value="${mat.densite ?? ''}"></label>
+              <label>Prix (€/kg)<input type="number" step="0.01" min="0" class="input-prix" value="${mat.prixKg ?? ''}"></label>
+              <label>Fournisseur<input type="text" class="input-fournisseur" value="${mat.fournisseur ?? ''}" placeholder="—"></label>
+              <label>Réf. fournisseur<input type="text" class="input-ref-fournisseur" value="${mat.refFournisseur ?? ''}" placeholder="—"></label>
+            </div>
+          </div>
+        `).join('')}
       </div>
     `).join('');
 
@@ -128,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Édition en direct (densité / prix / fournisseur) via délégation d'événement
   conteneurCategories.addEventListener('change', (e) => {
     if (!e.target.matches('.input-densite, .input-prix, .input-fournisseur, .input-ref-fournisseur')) return;
-    const ligne = e.target.closest('tr');
+    const ligne = e.target.closest('.matiere-carte');
     const { categorie, code } = ligne.dataset;
     let champ, valeur;
     if (e.target.classList.contains('input-densite')) { champ = 'densite'; valeur = Number(e.target.value) || null; }
@@ -142,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Suppression d'une matière
   conteneurCategories.addEventListener('click', (e) => {
     if (!e.target.matches('.btn-supprimer-matiere')) return;
-    const ligne = e.target.closest('tr');
+    const ligne = e.target.closest('.matiere-carte');
     const { categorie, code } = ligne.dataset;
     if (!confirm(`Supprimer la matière "${code}" ?`)) return;
     supprimerMateriau(categorie, code);
@@ -171,14 +212,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const refFournisseur = document.getElementById('nouvelle-matiere-ref-fournisseur').value.trim();
 
     if (!code) {
-      alert('La désignation de la matière est obligatoire.');
+      toast('La désignation de la matière est obligatoire.', 'error');
       return;
     }
 
     if (categorie === '__nouvelle__') {
       categorie = inputNouvelleCategorieNom.value.trim();
       if (!categorie) {
-        alert('Indique un nom pour la nouvelle catégorie.');
+        toast('Indique un nom pour la nouvelle catégorie.', 'error');
         return;
       }
       ajouterCategorieMatiere(categorie);
@@ -216,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nomVue === 'historique') afficherHistorique();
     if (nomVue === 'matieres') afficherPageMatieres();
     if (nomVue === 'clients') afficherClients();
-    if (nomVue === 'devis') { peuplerSelectDevis(); peuplerSelectClientDevis(); peuplerDatalistReferences(); }
+    if (nomVue === 'devis') { peuplerSelectDevis(); peuplerSelectClientDevis(); peuplerDatalistReferences(); calculerEtAfficher(); }
     if (nomVue === 'parametres') afficherPreferences();
   }
 
@@ -240,6 +281,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   const form = document.getElementById('form-devis');
   const prixTotalEl = document.getElementById('prix-total');
+  const resultBoxEl = document.getElementById('result-box');
+
+  // ---------- Mode rapide / détaillé ----------
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      form.classList.toggle('mode-rapide', btn.dataset.mode === 'rapide');
+
+      if (btn.dataset.mode === 'rapide') {
+        // Repasser en mode rapide vide les champs avancés pour éviter un coût
+        // caché qui resterait compté sans être visible.
+        document.getElementById('temps-reglage').value = 0;
+        document.getElementById('taux-reglage').value = '';
+        document.getElementById('liste-sous-traitance').innerHTML = '';
+        document.getElementById('frais-transport-check').checked = false;
+        document.getElementById('frais-emballage-check').checked = false;
+        calculerEtAfficher();
+      }
+    });
+  });
 
   // ---------- Opérations (liste répétable) ----------
   const listeOperationsEl = document.getElementById('liste-operations');
@@ -262,7 +324,10 @@ document.addEventListener('DOMContentLoaded', () => {
     listeOperationsEl.insertAdjacentHTML('beforeend', ligneOperationHTML());
   }
 
-  document.getElementById('btn-ajouter-operation').addEventListener('click', ajouterLigneOperation);
+  document.getElementById('btn-ajouter-operation').addEventListener('click', () => {
+    ajouterLigneOperation();
+    calculerEtAfficher();
+  });
   ajouterLigneOperation(); // une ligne par défaut
 
   function lireOperations() {
@@ -287,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-ajouter-sous-traitance').addEventListener('click', () => {
     listeSousTraitanceEl.insertAdjacentHTML('beforeend', ligneSousTraitanceHTML());
+    calculerEtAfficher();
   });
 
   function lireSousTraitance() {
@@ -300,6 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('click', (e) => {
     if (!e.target.matches('.btn-supprimer-ligne')) return;
     e.target.closest('.ligne-repetable').remove();
+    calculerEtAfficher();
   });
 
   // ---------- Frais fixes ----------
@@ -379,21 +446,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let dernierDetail = null;
 
+  const resultBoxUnitaireEl = document.getElementById('result-box-unitaire');
+  const barrePrixUnitaireEl = document.getElementById('barre-prix-unitaire');
+  const barrePrixTotalEl = document.getElementById('barre-prix-total');
+
   function calculerEtAfficher() {
     const donnees = lireFormulaire();
     const detail = calculerDevis(donnees);
     dernierDetail = detail;
     animerPrix(prixTotalEl, detail.prixTotal);
+
+    const quantite = Number(donnees.quantite) || 1;
+    resultBoxUnitaireEl.textContent = quantite > 1 ? `soit ${formaterPrix(detail.prixUnitaire)} / pièce` : '';
+
+    barrePrixUnitaireEl.textContent = formaterPrix(detail.prixUnitaire);
+    barrePrixTotalEl.textContent = formaterPrix(detail.prixTotal);
+
     return { donnees, total: detail.prixTotal, detail };
   }
 
   document.getElementById('btn-calculer').addEventListener('click', calculerEtAfficher);
 
+  // Calcul en direct : recalcule automatiquement après la dernière saisie,
+  // sans obliger à cliquer sur "Calculer" (le bouton reste utile en repli manuel).
+  let debounceCalcul;
+  form.addEventListener('input', () => {
+    clearTimeout(debounceCalcul);
+    debounceCalcul = setTimeout(calculerEtAfficher, 400);
+  });
+  form.addEventListener('change', calculerEtAfficher);
+
   document.getElementById('btn-enregistrer').addEventListener('click', () => {
     const { donnees, total } = calculerEtAfficher();
 
     if (!donnees.client) {
-      alert('Choisis un client ou indique le nom du nouveau client avant d\'enregistrer.');
+      toast('Choisis un client ou indique le nom du nouveau client avant d\'enregistrer.', 'error');
       return;
     }
 
@@ -407,7 +494,10 @@ document.addEventListener('DOMContentLoaded', () => {
     peuplerSelectClientDevis(donnees.client);
     peuplerDatalistReferences();
 
-    alert('Devis enregistré dans l\'historique.');
+    resultBoxEl.classList.add('result-box-flash');
+    setTimeout(() => resultBoxEl.classList.remove('result-box-flash'), 700);
+
+    toast('Devis enregistré dans l\'historique.', 'success');
   });
 
   document.getElementById('btn-export-pdf').addEventListener('click', () => {
@@ -507,7 +597,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectClientDevis.value !== '__nouveau__') {
       inputNouveauClientDevisNom.value = '';
     }
+    majEtatBoutonEnregistrer();
   }
+
+  // ---------- Validation en direct : impossible d'enregistrer sans nom de client ----------
+  const btnEnregistrerDevis = document.getElementById('btn-enregistrer');
+
+  function majEtatBoutonEnregistrer() {
+    const enModeCreation = selectClientDevis.value === '__nouveau__';
+    const nomVide = enModeCreation && !inputNouveauClientDevisNom.value.trim();
+    btnEnregistrerDevis.disabled = nomVide;
+    btnEnregistrerDevis.title = nomVide ? 'Choisis un client ou indique le nom du nouveau client' : '';
+  }
+
+  inputNouveauClientDevisNom.addEventListener('input', majEtatBoutonEnregistrer);
+
   peuplerSelectClientDevis();
 
   const inputMarge = document.getElementById('marge');
@@ -535,6 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
       inputNouveauClientDevisNom.focus();
     }
     appliquerMargeSelonClient();
+    majEtatBoutonEnregistrer();
   });
 
   document.getElementById('nouveau-client-type-devis').addEventListener('change', appliquerMargeSelonClient);
@@ -622,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-enregistrer-client').addEventListener('click', () => {
     const nom = inputClientNom.value.trim();
     if (!nom) {
-      alert('Le nom du client est obligatoire.');
+      toast('Le nom du client est obligatoire.', 'error');
       return;
     }
     const champs = {
@@ -703,7 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fraisEmballage: Number(document.getElementById('pref-frais-emballage').value) || 0
     });
     preremplirFraisFixesDepuisPreferences();
-    alert('Préférences enregistrées.');
+    toast('Préférences enregistrées.', 'success');
   });
 
   document.getElementById('liste-historique').addEventListener('click', (e) => {

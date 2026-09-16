@@ -36,6 +36,19 @@
   - **Écran de chargement au lancement** : le logo (plein, dans la couleur du texte) est révélé par un balayage façon tête de scanner/laser qui traverse l'écran de gauche à droite (`clip-path` + ligne lumineuse synchronisée) — clin d'œil au métier plutôt qu'un simple spinner, et fiable quelle que soit la complexité du tracé vectoriel du logo (contrairement à une première version en "dessin du contour" qui ne rendait pas bien sur ce logo). Repli immédiat (logo affiché direct, sans animation) si `prefers-reduced-motion`
   - **Navigation simplifiée** : seuls "Accueil" et "Paramètres" sont des onglets. Paramètres est organisé en deux sections — "Données" (Historique / Clients / Matières, en cartes) et "Préférences" (marge par type de client, frais fixes par défaut). Chaque page secondaire a un lien "← Accueil" pour revenir
 - Note technique : la bibliothèque de matières est structurée par catégorie → liste de `{code, nom, densite, prixKg, fournisseur, refFournisseur}`, stockée en `localStorage` sous forme d'un objet modifiable. Cette structure est pensée pour se transposer facilement plus tard dans une collection Firestore `materiaux` (un document par matière, un champ catégorie), afin d'avoir la bibliothèque en ligne et partagée entre les appareils de l'utilisateur une fois Firebase branché. Les clients suivent la même logique : liste plate de `{id, nom, type, email, telephone, adresse, notes}`, prête à devenir une collection Firestore `clients`.
+- **Passe UX/UI (retour utilisateur du 16/09)** :
+  - Barre de prix flottante en bas d'écran (unitaire + total), toujours visible en scrollant dans le formulaire de devis
+  - Prix unitaire affiché dès que la quantité dépasse 1
+  - Calcul en direct (recalcul automatique ~400ms après la dernière saisie, plus besoin de cliquer "Calculer" à chaque fois — le bouton reste disponible en repli manuel)
+  - Toggle **Mode rapide / Mode détaillé** sur le formulaire de devis : Réglage, Sous-traitance et Frais fixes sont masqués par défaut (mode rapide) et n'apparaissent qu'en mode détaillé — repasser en rapide vide ces champs pour éviter un coût caché
+  - Notifications discrètes (`toast()`) à la place des `alert()` natifs du navigateur, plus cohérentes avec le design sombre
+  - Flash visuel sur le prix total à l'enregistrement d'un devis
+  - Bouton "Enregistrer" désactivé tant qu'aucun client n'est choisi ou saisi (validation en direct plutôt qu'un blocage après coup)
+  - Page "Matières" passée d'un tableau à 7 colonnes (illisible sur petit écran) à des fiches empilées, comme la page Clients
+  - Lignes d'opérations et de sous-traitance qui s'empilent sur 2 lignes en dessous de 480px de large plutôt qu'une rangée serrée
+  - Boutons et champs à 44px de hauteur minimum (zones tactiles plus confortables en atelier)
+  - **Bascule thème clair/sombre** (Paramètres > Apparence), persistée en localStorage — utile en plein jour dans un atelier avec de grandes baies vitrées. Le fond animé fluide se désactive automatiquement en thème clair
+  - Contraste du texte discret (`--text-muted`) légèrement augmenté pour une meilleure lisibilité en coup d'œil
 - Pas encore fait :
   - Numérotation automatique des devis, statut (brouillon/envoyé/accepté...), date de validité + relance, envoi par email, conversion devis → facture, Factur-X, signature client
   - Traçabilité matière (certificat 3.1), ordre de fabrication et suivi de production, rapport de premier article (FAI)

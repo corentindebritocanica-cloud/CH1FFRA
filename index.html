@@ -147,7 +147,12 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
     <!-- VUE : Nouveau devis -->
     <section id="view-devis" class="view">
       <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
-      <form id="form-devis">
+      <form id="form-devis" class="mode-rapide">
+
+        <div class="mode-toggle" role="group" aria-label="Niveau de détail du formulaire">
+          <button type="button" class="mode-btn active" data-mode="rapide">Mode rapide</button>
+          <button type="button" class="mode-btn" data-mode="detaille">Mode détaillé</button>
+        </div>
 
         <fieldset>
           <legend>Client</legend>
@@ -217,7 +222,7 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           <button type="button" id="btn-ajouter-operation" class="lien-discret">+ Ajouter une opération</button>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="section-detaillee">
           <legend>Réglage (une fois par série)</legend>
 
           <div class="field">
@@ -231,13 +236,13 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="section-detaillee">
           <legend>Sous-traitance externe</legend>
           <div id="liste-sous-traitance"></div>
           <button type="button" id="btn-ajouter-sous-traitance" class="lien-discret">+ Ajouter une ligne</button>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="section-detaillee">
           <legend>Frais fixes</legend>
 
           <label class="frais-fixe-ligne">
@@ -266,6 +271,18 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
         <div class="result-box" id="result-box">
           <p>Prix total estimé</p>
           <strong id="prix-total" data-valeur="0">–</strong>
+          <span class="result-box-unitaire" id="result-box-unitaire"></span>
+        </div>
+
+        <div class="barre-prix-flottante" id="barre-prix-flottante">
+          <div>
+            <span class="barre-prix-label">Unitaire</span>
+            <strong id="barre-prix-unitaire">–</strong>
+          </div>
+          <div>
+            <span class="barre-prix-label">Total</span>
+            <strong id="barre-prix-total">–</strong>
+          </div>
         </div>
 
         <div class="section-avancee">
@@ -438,6 +455,14 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
             <span class="carte-choix-titre">Matières</span>
             <span class="carte-choix-desc">Bibliothèque de matières, densités et prix.</span>
           </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Apparence</legend>
+        <div class="mode-toggle">
+          <button type="button" class="mode-btn" id="btn-theme-sombre" data-theme="dark">Sombre</button>
+          <button type="button" class="mode-btn" id="btn-theme-clair" data-theme="light">Clair</button>
         </div>
       </fieldset>
 

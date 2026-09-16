@@ -8,7 +8,7 @@ const LOGO_PDF_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAArwAAAB4CAIAAACfPrafAAAABmJLR0Q
 
 function genererPdfDevis(donnees, detail) {
   if (!window.jspdf) {
-    alert("Le module PDF n'a pas pu se charger (verifie ta connexion).");
+    toast("Le module PDF n'a pas pu se charger (vérifie ta connexion).", "error");
     return;
   }
 

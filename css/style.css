@@ -8,9 +8,11 @@
   --bg: #0a0c10;
   --bg-elevated: #14171c;
   --bg-elevated-2: #1b1f26;
+  --header-bg: rgba(20, 23, 28, 0.75);
+  --header-bg-solid: rgba(20, 23, 28, 0.9);
   --border: #262b33;
   --text: #f2f4f7;
-  --text-muted: #8993a1;
+  --text-muted: #9aa4b2;
   --accent: #2f6fed;
   --accent-dark: #1d4ed8;
   --accent-glow: rgba(47, 111, 237, 0.35);
@@ -23,6 +25,26 @@
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 }
 
+:root[data-theme="light"] {
+  --bg: #f4f6f8;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #eef1f4;
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --header-bg-solid: rgba(255, 255, 255, 0.92);
+  --border: #d8dee4;
+  --text: #14181c;
+  --text-muted: #5b6670;
+  --accent: #1957db;
+  --accent-dark: #123f9e;
+  --accent-glow: rgba(25, 87, 219, 0.2);
+  --danger: #b4351e;
+  --shadow-bouton: 0 2px 6px rgba(20, 24, 28, 0.12);
+}
+
+:root[data-theme="light"] .fluid-bg {
+  display: none;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -33,6 +55,7 @@ button {
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
+  min-height: 44px;
   padding: 0.65rem 1.1rem;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -43,12 +66,54 @@ button {
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 button:hover {
   border-color: var(--text-muted);
 }
 
 html {
   background: var(--bg);
+}
+
+/* ---------- Notifications (toast) ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translate(-50%, 12px);
+  z-index: 1200;
+  max-width: min(90vw, 420px);
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--radius);
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-bouton);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.toast-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast-success {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.toast-error {
+  border-color: var(--danger);
+  color: var(--text);
 }
 
 /* ---------- Ecran de chargement ---------- */
@@ -209,7 +274,7 @@ body {
 .app-header {
   position: relative;
   z-index: 1;
-  background: rgba(20, 23, 28, 0.75);
+  background: var(--header-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 1.75rem 1.5rem 0;
@@ -263,6 +328,7 @@ body {
   border: none;
   background: none;
   box-shadow: none;
+  min-height: auto;
   cursor: pointer;
   color: var(--text-muted);
   font-family: var(--font-body);
@@ -304,6 +370,10 @@ main {
 
 .view {
   display: none;
+}
+
+#view-devis.active {
+  padding-bottom: 4.5rem;
 }
 
 .view.active {
@@ -394,6 +464,7 @@ input[type="number"],
   background: none;
   border: none;
   box-shadow: none;
+  min-height: auto;
   padding: 0;
   color: var(--text-muted);
   font-family: var(--font-body);
@@ -468,6 +539,17 @@ input[type="number"],
   margin-bottom: 1.5rem;
   text-align: center;
   box-shadow: 0 0 50px -12px var(--accent-glow);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.result-box-flash {
+  animation: result-flash 0.7s ease;
+}
+
+@keyframes result-flash {
+  0%   { box-shadow: 0 0 50px -12px var(--accent-glow); border-color: var(--border); }
+  30%  { box-shadow: 0 0 60px 4px var(--accent-glow); border-color: var(--accent); }
+  100% { box-shadow: 0 0 50px -12px var(--accent-glow); border-color: var(--border); }
 }
 
 .result-box p {
@@ -483,6 +565,49 @@ input[type="number"],
   font-weight: 600;
   font-size: 2.5rem;
   letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.result-box-unitaire {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* ---------- Barre de prix flottante (toujours visible en scrollant) ---------- */
+
+.barre-prix-flottante {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.65rem 1.25rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
+  background: var(--header-bg-solid);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+}
+
+.barre-prix-flottante > div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.barre-prix-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.barre-prix-flottante strong {
+  font-family: var(--font-mono);
+  font-size: 1rem;
   color: var(--text);
 }
 
@@ -668,37 +793,51 @@ input[type="number"],
   padding: 0.15rem 0.3rem;
 }
 
-.table-matieres {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
+.matiere-carte {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.table-matieres th {
-  text-align: left;
-  color: var(--text-muted);
-  font-weight: 500;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 0 0.5rem 0.4rem 0;
-  border-bottom: 1px solid var(--border);
+.matiere-carte-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.table-matieres td {
-  padding: 0.5rem 0.5rem 0.5rem 0;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-}
-
-.table-matieres td:first-child {
+.matiere-carte-header strong {
   font-family: var(--font-mono);
-  font-weight: 500;
+  font-size: 0.95rem;
 }
 
-.table-matieres input {
-  width: 5rem;
-  padding: 0.35rem 0.4rem;
+.matiere-carte-nom {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.matiere-carte-champs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.matiere-carte-champs label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  gap: 0.3rem;
+}
+
+.matiere-carte-champs input {
+  padding: 0.5rem 0.5rem;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg-elevated-2);
@@ -788,6 +927,33 @@ input[type="number"],
   margin-bottom: 1.5rem;
 }
 
+form.mode-rapide .section-detaillee {
+  display: none;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.75rem;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.mode-btn.active {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--bg-elevated-2);
+}
+
 .section-avancee > div {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -858,5 +1024,24 @@ input[type="number"],
 
   .actions button {
     min-width: 100%;
+  }
+
+  .ligne-repetable {
+    flex-wrap: wrap;
+  }
+
+  .ligne-repetable .op-type,
+  .ligne-repetable .st-libelle {
+    flex: 1 1 100%;
+  }
+
+  .ligne-repetable .op-temps,
+  .ligne-repetable .op-taux,
+  .ligne-repetable .st-montant {
+    flex: 1 1 calc(50% - 0.25rem);
+  }
+
+  .barre-prix-flottante {
+    gap: 1rem;
   }
 }
