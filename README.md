@@ -10,6 +10,7 @@
 - **Squelette du projet créé** : `index.html`, `css/style.css`, `js/calcul.js`, `js/storage.js`, `js/app.js`.
 - Fonctionnel pour l'instant :
   - Formulaire de devis (matière, épaisseur, quantité, opération, temps/taux/prix matière/marge)
+  - Bibliothèque de matières avec désignations normalisées (`js/materiaux.js`) : aciers, aciers inox (ex. X2CrNiMo17-12-2 / 316L), fontes, aluminiums, plastiques techniques (PTFE, POM, PE, PA6/66, PEEK, PMMA, PC, PVC) — chaque matière a une densité indicative affichée à la sélection, réutilisable plus tard pour le calcul de poids automatique depuis un fichier STEP
   - Calcul du prix estimé (formule simple : temps × taux horaire + poids × prix matière, puis marge)
   - Sauvegarde du devis dans un historique local (`localStorage`, pas encore Firebase — cohérent avec la section 5bis)
   - Navigation entre 3 vues : Nouveau devis / Historique / Paramètres

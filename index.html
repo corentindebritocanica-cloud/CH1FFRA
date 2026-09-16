@@ -35,12 +35,8 @@
 
           <div class="field">
             <label for="matiere">Matière</label>
-            <select id="matiere" name="matiere">
-              <option value="acier">Acier</option>
-              <option value="inox">Inox</option>
-              <option value="alu">Aluminium</option>
-              <option value="autre">Autre</option>
-            </select>
+            <select id="matiere" name="matiere"></select>
+            <small id="densite-info" class="field-hint"></small>
           </div>
 
           <div class="field">
@@ -128,6 +124,7 @@
   <!-- jsPDF (export PDF, chargé plus tard quand la fonctionnalité sera branchée) -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> -->
 
+  <script src="js/materiaux.js"></script>
   <script src="js/calcul.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>

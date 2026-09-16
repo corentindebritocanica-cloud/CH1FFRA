@@ -108,6 +108,12 @@ legend {
   font-size: 1rem;
 }
 
+.field-hint {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
 .result-box {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

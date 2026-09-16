@@ -6,6 +6,37 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // --- Matières (menu déroulant + info densité) ---
+  const selectMatiere = document.getElementById('matiere');
+  const densiteInfo = document.getElementById('densite-info');
+
+  function peuplerMatieres() {
+    Object.entries(MATERIAUX).forEach(([categorie, liste]) => {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = categorie;
+      liste.forEach(mat => {
+        const option = document.createElement('option');
+        option.value = mat.code;
+        option.textContent = mat.nom ? `${mat.code} — ${mat.nom}` : mat.code;
+        option.dataset.densite = mat.densite ?? '';
+        optgroup.appendChild(option);
+      });
+      selectMatiere.appendChild(optgroup);
+    });
+    afficherDensite();
+  }
+
+  function afficherDensite() {
+    const option = selectMatiere.selectedOptions[0];
+    const densite = option?.dataset.densite;
+    densiteInfo.textContent = densite
+      ? `Densité indicative : ${densite} g/cm³`
+      : '';
+  }
+
+  selectMatiere.addEventListener('change', afficherDensite);
+  peuplerMatieres();
+
   // --- Navigation entre vues ---
   const navButtons = document.querySelectorAll('.nav-btn');
   const views = document.querySelectorAll('.view');
