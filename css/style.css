@@ -301,6 +301,11 @@ input[type="number"],
   color: var(--accent);
 }
 
+.lien-retour {
+  display: block;
+  margin-bottom: 1.25rem;
+}
+
 /* ---------- Accueil ---------- */
 
 .accueil-choix {

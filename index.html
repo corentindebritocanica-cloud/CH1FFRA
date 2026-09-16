@@ -70,10 +70,6 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
     <nav class="app-nav">
       <button class="nav-btn active" data-view="accueil">Accueil</button>
-      <button class="nav-btn" data-view="devis">Nouveau devis</button>
-      <button class="nav-btn" data-view="historique">Historique</button>
-      <button class="nav-btn" data-view="clients">Clients</button>
-      <button class="nav-btn" data-view="matieres">Matières</button>
       <button class="nav-btn" data-view="parametres">Paramètres</button>
     </nav>
   </header>
@@ -97,6 +93,7 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
     <!-- VUE : Nouveau devis -->
     <section id="view-devis" class="view">
+      <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <form id="form-devis">
 
         <fieldset>
@@ -180,6 +177,7 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
     <!-- VUE : Historique -->
     <section id="view-historique" class="view">
+      <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Historique des devis</h2>
       <div id="liste-historique">
         <p class="empty-state">Aucun devis enregistré pour l'instant.</p>
@@ -188,6 +186,7 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
     <!-- VUE : Clients -->
     <section id="view-clients" class="view">
+      <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Clients</h2>
       <p class="view-intro">Retrouve ici les clients créés automatiquement depuis tes devis, ou ajoute-en directement. Complète leurs coordonnées quand tu as le temps.</p>
 
@@ -232,6 +231,7 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
     <!-- VUE : Matières -->
     <section id="view-matieres" class="view">
+      <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Bibliothèque de matières</h2>
       <p class="view-intro">Modifie les densités et prix indicatifs, ajoute tes propres matières ou catégories. Ces valeurs servent de base au formulaire de devis (le prix matière reste ajustable au cas par cas).</p>
 
@@ -276,8 +276,26 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
     <!-- VUE : Paramètres -->
     <section id="view-parametres" class="view">
-      <h2>Paramètres par défaut</h2>
-      <p class="empty-state">À venir : taux horaire par défaut, prix matière par défaut.</p>
+      <h2>Paramètres</h2>
+
+      <fieldset>
+        <legend>Gestion</legend>
+        <div class="accueil-choix">
+          <button type="button" class="carte-choix" data-view-link="clients">
+            <span class="carte-choix-titre">Clients</span>
+            <span class="carte-choix-desc">Ajouter, modifier ou supprimer des clients.</span>
+          </button>
+          <button type="button" class="carte-choix" data-view-link="matieres">
+            <span class="carte-choix-titre">Matières</span>
+            <span class="carte-choix-desc">Bibliothèque de matières, densités et prix.</span>
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Valeurs par défaut</legend>
+        <p class="empty-state">À venir : taux horaire par défaut, prix matière par défaut.</p>
+      </fieldset>
     </section>
 
   </main>
