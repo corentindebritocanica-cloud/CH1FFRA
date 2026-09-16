@@ -1,4 +1,4 @@
-<img src="assets/logo.svg" alt="Ch1ffra" width="220" />
+<img src="assets/logo.svg" alt="CH1FFRA" width="260" />
 
 # PLAN COMPLET — Ch1ffra, outil d'aide au chiffrage pour petites structures mécaniques
 
@@ -11,6 +11,7 @@
 - **Validation terrain (section 6, étape 1)** : pas encore faite — développement lancé en parallèle.
 - **Squelette du projet créé** : `index.html`, `css/style.css`, `js/calcul.js`, `js/storage.js`, `js/app.js`.
 - **Identité visuelle définie** (thème sombre inspiré de https://bitnomial.com/, adapté à un outil de saisie quotidien) :
+  - Logo vectorisé (`assets/logo.svg`, `assets/logo-dark-bg.svg`) à partir du wordmark fourni par l'utilisateur — "CH1FFRA" en majuscules, C/H/1 en contour, FFRA plein
   - Fond sombre sur toute l'app (`#0a0c10`), avec un fond animé fluide en arrière-plan : trois masses colorées floutées (bleu, sarcelle, violet) qui dérivent lentement en boucle, façon aurore — désactivé si `prefers-reduced-motion`
   - En-tête et pied de page légèrement plus clairs (`#14171c`) avec un filet de séparation, pour structurer sans casser l'unité sombre
   - Typo : Space Grotesk pour les titres, Inter pour le texte courant, IBM Plex Mono pour les désignations matière, quantités et prix
