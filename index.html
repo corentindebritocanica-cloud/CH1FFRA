@@ -150,13 +150,33 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
       <form id="form-devis">
 
         <fieldset>
-          <legend>Informations pièce</legend>
+          <legend>Client</legend>
 
           <div class="field">
-            <label for="client">Client</label>
-            <input type="text" id="client" name="client" list="clients-datalist" placeholder="Nom du client" autocomplete="off">
-            <datalist id="clients-datalist"></datalist>
-            <small class="field-hint"><button type="button" class="lien-discret" data-view-link="clients">Gérer mes clients</button></small>
+            <label for="client-select">Client</label>
+            <select id="client-select"></select>
+          </div>
+
+          <div class="field" id="champ-nouveau-client-devis" style="display:none;">
+            <label for="nouveau-client-nom-devis">Nom du nouveau client</label>
+            <input type="text" id="nouveau-client-nom-devis" placeholder="ex : Atelier Dupont">
+            <select id="nouveau-client-type-devis" style="margin-top:0.5rem;">
+              <option value="particulier">Particulier</option>
+              <option value="pro">Pro</option>
+              <option value="gros-compte">Gros compte</option>
+            </select>
+          </div>
+
+          <small class="field-hint"><button type="button" class="lien-discret" data-view-link="clients">Gérer mes clients</button></small>
+        </fieldset>
+
+        <fieldset>
+          <legend>Pièce</legend>
+
+          <div class="field">
+            <label for="reference-piece">Référence pièce</label>
+            <input type="text" id="reference-piece" list="references-datalist" placeholder="ex : REF-1234" autocomplete="off">
+            <datalist id="references-datalist"></datalist>
           </div>
 
           <div class="field">
@@ -171,31 +191,8 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           </div>
 
           <div class="field">
-            <label for="quantite">Quantité</label>
-            <input type="number" id="quantite" name="quantite" min="1" value="1">
-          </div>
-
-          <div class="field">
-            <label for="operation">Type d'opération</label>
-            <select id="operation" name="operation">
-              <option value="usinage">Usinage</option>
-              <option value="tolerie">Tôlerie</option>
-              <option value="soudure">Soudure</option>
-            </select>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Estimation (à ajuster)</legend>
-
-          <div class="field">
-            <label for="temps-estime">Temps estimé (min / pièce)</label>
-            <input type="number" id="temps-estime" name="tempsEstime" min="0">
-          </div>
-
-          <div class="field">
-            <label for="taux-horaire">Taux horaire machine (€/h)</label>
-            <input type="number" id="taux-horaire" name="tauxHoraire" min="0">
+            <label for="poids">Poids matière (kg / pièce)</label>
+            <input type="number" id="poids" name="poids" step="0.01" min="0">
           </div>
 
           <div class="field">
@@ -204,10 +201,62 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           </div>
 
           <div class="field">
-            <label for="poids">Poids matière (kg / pièce)</label>
-            <input type="number" id="poids" name="poids" step="0.01" min="0">
+            <label for="perte-matiere">Perte matière (%)</label>
+            <input type="number" id="perte-matiere" name="pertePct" min="0" value="0">
           </div>
 
+          <div class="field">
+            <label for="quantite">Quantité</label>
+            <input type="number" id="quantite" name="quantite" min="1" value="1">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Opérations</legend>
+          <div id="liste-operations"></div>
+          <button type="button" id="btn-ajouter-operation" class="lien-discret">+ Ajouter une opération</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Réglage (une fois par série)</legend>
+
+          <div class="field">
+            <label for="temps-reglage">Temps de réglage (min)</label>
+            <input type="number" id="temps-reglage" min="0" value="0">
+          </div>
+
+          <div class="field">
+            <label for="taux-reglage">Taux horaire réglage (€/h)</label>
+            <input type="number" id="taux-reglage" min="0">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Sous-traitance externe</legend>
+          <div id="liste-sous-traitance"></div>
+          <button type="button" id="btn-ajouter-sous-traitance" class="lien-discret">+ Ajouter une ligne</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Frais fixes</legend>
+
+          <label class="frais-fixe-ligne">
+            <input type="checkbox" id="frais-transport-check">
+            <span>Transport</span>
+            <input type="number" id="frais-transport-montant" min="0">
+            <span>€</span>
+          </label>
+
+          <label class="frais-fixe-ligne">
+            <input type="checkbox" id="frais-emballage-check">
+            <span>Emballage</span>
+            <input type="number" id="frais-emballage-montant" min="0">
+            <span>€</span>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Marge</legend>
           <div class="field">
             <label for="marge">Marge (%)</label>
             <input type="number" id="marge" name="marge" min="0" value="20">
@@ -217,6 +266,27 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
         <div class="result-box" id="result-box">
           <p>Prix total estimé</p>
           <strong id="prix-total" data-valeur="0">–</strong>
+        </div>
+
+        <div class="section-avancee">
+          <button type="button" id="btn-toggle-comparaison-matieres" class="lien-discret">+ Comparer avec d'autres matières</button>
+          <div id="bloc-comparaison-matieres" style="display:none;">
+            <div id="liste-matieres-comparaison" class="liste-cases"></div>
+            <button type="button" id="btn-comparer-matieres">Comparer</button>
+            <div id="resultat-comparaison-matieres"></div>
+          </div>
+        </div>
+
+        <div class="section-avancee">
+          <button type="button" id="btn-toggle-paliers" class="lien-discret">+ Comparer par quantité</button>
+          <div id="bloc-paliers" style="display:none;">
+            <div class="field">
+              <label for="paliers-quantites">Quantités à comparer (séparées par des virgules)</label>
+              <input type="text" id="paliers-quantites" value="1,10,50">
+            </div>
+            <button type="button" id="btn-comparer-paliers">Comparer</button>
+            <div id="resultat-paliers"></div>
+          </div>
         </div>
 
         <div class="actions">
@@ -232,6 +302,9 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
     <section id="view-historique" class="view">
       <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Historique des devis</h2>
+      <div class="field">
+        <input type="text" id="recherche-historique" placeholder="Rechercher par client ou référence pièce…">
+      </div>
       <div id="liste-historique">
         <p class="empty-state">Aucun devis enregistré pour l'instant.</p>
       </div>
@@ -253,6 +326,15 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
         <div class="field">
           <label for="nouveau-client-nom">Nom</label>
           <input type="text" id="nouveau-client-nom" placeholder="ex : Atelier Dupont">
+        </div>
+
+        <div class="field">
+          <label for="nouveau-client-type">Type de client</label>
+          <select id="nouveau-client-type">
+            <option value="particulier">Particulier</option>
+            <option value="pro">Pro</option>
+            <option value="gros-compte">Gros compte</option>
+          </select>
         </div>
 
         <div class="field">
@@ -323,6 +405,16 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           <input type="number" id="nouvelle-matiere-prix" step="0.01" min="0">
         </div>
 
+        <div class="field">
+          <label for="nouvelle-matiere-fournisseur">Fournisseur habituel</label>
+          <input type="text" id="nouvelle-matiere-fournisseur" placeholder="ex : Descours & Cabaud">
+        </div>
+
+        <div class="field">
+          <label for="nouvelle-matiere-ref-fournisseur">Référence fournisseur</label>
+          <input type="text" id="nouvelle-matiere-ref-fournisseur" placeholder="ex : réf. catalogue">
+        </div>
+
         <button type="button" id="btn-ajouter-matiere">Ajouter la matière</button>
       </fieldset>
     </section>
@@ -351,7 +443,37 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
       <fieldset>
         <legend>Préférences</legend>
-        <p class="empty-state">À venir : taux horaire par défaut, prix matière par défaut.</p>
+
+        <p class="view-intro" style="margin-top:0;">Marge par défaut selon le type de client (appliquée automatiquement, modifiable au cas par cas dans chaque devis).</p>
+
+        <div class="field">
+          <label for="pref-marge-particulier">Marge — Particulier (%)</label>
+          <input type="number" id="pref-marge-particulier" min="0">
+        </div>
+
+        <div class="field">
+          <label for="pref-marge-pro">Marge — Pro (%)</label>
+          <input type="number" id="pref-marge-pro" min="0">
+        </div>
+
+        <div class="field">
+          <label for="pref-marge-gros-compte">Marge — Gros compte (%)</label>
+          <input type="number" id="pref-marge-gros-compte" min="0">
+        </div>
+
+        <p class="view-intro">Montants par défaut proposés dans les frais fixes d'un devis.</p>
+
+        <div class="field">
+          <label for="pref-frais-transport">Transport par défaut (€)</label>
+          <input type="number" id="pref-frais-transport" min="0">
+        </div>
+
+        <div class="field">
+          <label for="pref-frais-emballage">Emballage par défaut (€)</label>
+          <input type="number" id="pref-frais-emballage" min="0">
+        </div>
+
+        <button type="button" id="btn-enregistrer-preferences">Enregistrer les préférences</button>
       </fieldset>
     </section>
 
@@ -362,11 +484,12 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
   </footer>
 
   <!-- jsPDF (export PDF, chargé plus tard quand la fonctionnalité sera branchée) -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script src="js/materiaux.js"></script>
   <script src="js/calcul.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/pdf.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

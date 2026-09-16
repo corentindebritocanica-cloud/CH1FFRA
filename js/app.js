@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <table class="table-matieres">
           <thead>
-            <tr><th>Désignation</th><th>Nom usuel</th><th>Densité (g/cm³)</th><th>Prix (€/kg)</th><th></th></tr>
+            <tr><th>Désignation</th><th>Nom usuel</th><th>Densité (g/cm³)</th><th>Prix (€/kg)</th><th>Fournisseur</th><th>Réf. fournisseur</th><th></th></tr>
           </thead>
           <tbody>
             ${liste.map(mat => `
@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${mat.nom || ''}</td>
                 <td><input type="number" step="0.01" min="0" class="input-densite" value="${mat.densite ?? ''}"></td>
                 <td><input type="number" step="0.01" min="0" class="input-prix" value="${mat.prixKg ?? ''}"></td>
+                <td><input type="text" class="input-fournisseur" value="${mat.fournisseur ?? ''}" placeholder="—"></td>
+                <td><input type="text" class="input-ref-fournisseur" value="${mat.refFournisseur ?? ''}" placeholder="—"></td>
                 <td><button class="btn-supprimer-matiere" title="Supprimer">✕</button></td>
               </tr>
             `).join('')}
@@ -123,13 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
       selectNouvelleCategorie.value === '__nouvelle__' ? 'flex' : 'none';
   });
 
-  // Édition en direct (densité / prix) via délégation d'événement
+  // Édition en direct (densité / prix / fournisseur) via délégation d'événement
   conteneurCategories.addEventListener('change', (e) => {
-    if (!e.target.matches('.input-densite, .input-prix')) return;
+    if (!e.target.matches('.input-densite, .input-prix, .input-fournisseur, .input-ref-fournisseur')) return;
     const ligne = e.target.closest('tr');
     const { categorie, code } = ligne.dataset;
-    const champ = e.target.classList.contains('input-densite') ? 'densite' : 'prixKg';
-    modifierMateriau(categorie, code, { [champ]: Number(e.target.value) || null });
+    let champ, valeur;
+    if (e.target.classList.contains('input-densite')) { champ = 'densite'; valeur = Number(e.target.value) || null; }
+    else if (e.target.classList.contains('input-prix')) { champ = 'prixKg'; valeur = Number(e.target.value) || null; }
+    else if (e.target.classList.contains('input-fournisseur')) { champ = 'fournisseur'; valeur = e.target.value.trim(); }
+    else { champ = 'refFournisseur'; valeur = e.target.value.trim(); }
+    modifierMateriau(categorie, code, { [champ]: valeur });
     peuplerSelectDevis(); // répercute la modif dans le formulaire de devis
   });
 
@@ -161,6 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const nom = document.getElementById('nouvelle-matiere-nom').value.trim();
     const densite = Number(document.getElementById('nouvelle-matiere-densite').value) || null;
     const prixKg = Number(document.getElementById('nouvelle-matiere-prix').value) || null;
+    const fournisseur = document.getElementById('nouvelle-matiere-fournisseur').value.trim();
+    const refFournisseur = document.getElementById('nouvelle-matiere-ref-fournisseur').value.trim();
 
     if (!code) {
       alert('La désignation de la matière est obligatoire.');
@@ -176,13 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
       ajouterCategorieMatiere(categorie);
     }
 
-    ajouterMateriau(categorie, { code, nom, densite, prixKg });
+    ajouterMateriau(categorie, { code, nom, densite, prixKg, fournisseur, refFournisseur });
 
     // Réinitialisation du formulaire d'ajout
     document.getElementById('nouvelle-matiere-code').value = '';
     document.getElementById('nouvelle-matiere-nom').value = '';
     document.getElementById('nouvelle-matiere-densite').value = '';
     document.getElementById('nouvelle-matiere-prix').value = '';
+    document.getElementById('nouvelle-matiere-fournisseur').value = '';
+    document.getElementById('nouvelle-matiere-ref-fournisseur').value = '';
     inputNouvelleCategorieNom.value = '';
     champNouvelleCategorie.style.display = 'none';
 
@@ -206,7 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nomVue === 'historique') afficherHistorique();
     if (nomVue === 'matieres') afficherPageMatieres();
     if (nomVue === 'clients') afficherClients();
-    if (nomVue === 'devis') peuplerSelectDevis();
+    if (nomVue === 'devis') { peuplerSelectDevis(); peuplerSelectClientDevis(); peuplerDatalistReferences(); }
+    if (nomVue === 'parametres') afficherPreferences();
   }
 
   navButtons.forEach(btn => {
@@ -229,6 +240,89 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   const form = document.getElementById('form-devis');
   const prixTotalEl = document.getElementById('prix-total');
+
+  // ---------- Opérations (liste répétable) ----------
+  const listeOperationsEl = document.getElementById('liste-operations');
+
+  function ligneOperationHTML() {
+    return `
+      <div class="ligne-repetable">
+        <select class="op-type">
+          <option value="usinage">Usinage</option>
+          <option value="tolerie">Tôlerie</option>
+          <option value="soudure">Soudure</option>
+        </select>
+        <input type="number" class="op-temps" placeholder="Temps (min)" min="0">
+        <input type="number" class="op-taux" placeholder="Taux horaire (€/h)" min="0">
+        <button type="button" class="btn-supprimer-ligne" aria-label="Supprimer cette opération">✕</button>
+      </div>`;
+  }
+
+  function ajouterLigneOperation() {
+    listeOperationsEl.insertAdjacentHTML('beforeend', ligneOperationHTML());
+  }
+
+  document.getElementById('btn-ajouter-operation').addEventListener('click', ajouterLigneOperation);
+  ajouterLigneOperation(); // une ligne par défaut
+
+  function lireOperations() {
+    return [...listeOperationsEl.querySelectorAll('.ligne-repetable')].map(ligne => ({
+      type: ligne.querySelector('.op-type').value,
+      tempsMin: ligne.querySelector('.op-temps').value,
+      tauxHoraire: ligne.querySelector('.op-taux').value
+    }));
+  }
+
+  // ---------- Sous-traitance externe (liste répétable) ----------
+  const listeSousTraitanceEl = document.getElementById('liste-sous-traitance');
+
+  function ligneSousTraitanceHTML() {
+    return `
+      <div class="ligne-repetable">
+        <input type="text" class="st-libelle" placeholder="ex : Anodisation">
+        <input type="number" class="st-montant" placeholder="Montant (€)" min="0">
+        <button type="button" class="btn-supprimer-ligne" aria-label="Supprimer cette ligne">✕</button>
+      </div>`;
+  }
+
+  document.getElementById('btn-ajouter-sous-traitance').addEventListener('click', () => {
+    listeSousTraitanceEl.insertAdjacentHTML('beforeend', ligneSousTraitanceHTML());
+  });
+
+  function lireSousTraitance() {
+    return [...listeSousTraitanceEl.querySelectorAll('.ligne-repetable')].map(ligne => ({
+      libelle: ligne.querySelector('.st-libelle').value,
+      montant: ligne.querySelector('.st-montant').value
+    }));
+  }
+
+  // Suppression d'une ligne répétable (opération ou sous-traitance), délégation sur le formulaire
+  form.addEventListener('click', (e) => {
+    if (!e.target.matches('.btn-supprimer-ligne')) return;
+    e.target.closest('.ligne-repetable').remove();
+  });
+
+  // ---------- Frais fixes ----------
+  function lireFraisFixes() {
+    const frais = [];
+    const transportCheck = document.getElementById('frais-transport-check');
+    const emballageCheck = document.getElementById('frais-emballage-check');
+    if (transportCheck.checked) {
+      frais.push({ libelle: 'Transport', montant: document.getElementById('frais-transport-montant').value });
+    }
+    if (emballageCheck.checked) {
+      frais.push({ libelle: 'Emballage', montant: document.getElementById('frais-emballage-montant').value });
+    }
+    return frais;
+  }
+
+  // Pré-remplissage des montants de frais fixes avec les préférences enregistrées
+  function preremplirFraisFixesDepuisPreferences() {
+    const prefs = chargerPreferences();
+    document.getElementById('frais-transport-montant').value = prefs.fraisTransport;
+    document.getElementById('frais-emballage-montant').value = prefs.fraisEmballage;
+  }
+  preremplirFraisFixesDepuisPreferences();
 
   function animerPrix(el, valeurCible) {
     const reduceMotion = window.matchMedia
@@ -261,61 +355,195 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function lireFormulaire() {
     const data = new FormData(form);
+    const selectClient = document.getElementById('client-select');
+    const client = selectClient.value === '__nouveau__'
+      ? document.getElementById('nouveau-client-nom-devis').value.trim()
+      : selectClient.value;
     return {
-      client: data.get('client') || '',
+      client,
+      reference: document.getElementById('reference-piece').value.trim(),
       matiere: data.get('matiere'),
       epaisseur: data.get('epaisseur'),
       quantite: data.get('quantite'),
-      operation: data.get('operation'),
-      tempsEstimeMin: data.get('tempsEstime'),
-      tauxHoraire: data.get('tauxHoraire'),
-      prixMatiere: data.get('prixMatiere'),
       poids: data.get('poids'),
+      prixMatiere: data.get('prixMatiere'),
+      pertePct: data.get('pertePct'),
+      operations: lireOperations(),
+      tempsReglageMin: document.getElementById('temps-reglage').value,
+      tauxReglageHoraire: document.getElementById('taux-reglage').value,
+      sousTraitance: lireSousTraitance(),
+      fraisFixes: lireFraisFixes(),
       marge: data.get('marge')
     };
   }
 
+  let dernierDetail = null;
+
   function calculerEtAfficher() {
     const donnees = lireFormulaire();
-    const total = calculerPrixTotal(donnees);
-    animerPrix(prixTotalEl, total);
-    return { donnees, total };
+    const detail = calculerDevis(donnees);
+    dernierDetail = detail;
+    animerPrix(prixTotalEl, detail.prixTotal);
+    return { donnees, total: detail.prixTotal, detail };
   }
 
   document.getElementById('btn-calculer').addEventListener('click', calculerEtAfficher);
 
   document.getElementById('btn-enregistrer').addEventListener('click', () => {
     const { donnees, total } = calculerEtAfficher();
+
+    if (!donnees.client) {
+      alert('Choisis un client ou indique le nom du nouveau client avant d\'enregistrer.');
+      return;
+    }
+
     sauvegarderDevis({ ...donnees, prixTotal: total });
 
     // Un nom de client saisi qui n'existe pas encore devient automatiquement un client
     // (fiche minimale, à compléter plus tard depuis la page Clients).
-    if (donnees.client && !trouverClientParNom(donnees.client)) {
-      ajouterClient({ nom: donnees.client });
-      peuplerDatalistClients();
+    if (!trouverClientParNom(donnees.client)) {
+      ajouterClient({ nom: donnees.client, type: document.getElementById('nouveau-client-type-devis').value });
     }
+    peuplerSelectClientDevis(donnees.client);
+    peuplerDatalistReferences();
 
     alert('Devis enregistré dans l\'historique.');
   });
 
   document.getElementById('btn-export-pdf').addEventListener('click', () => {
-    alert('Export PDF : à venir (bibliothèque jsPDF pas encore branchée).');
+    const { donnees, detail } = calculerEtAfficher();
+    genererPdfDevis(donnees, detail);
   });
 
-  // ============================================================
-  // CLIENTS — autocomplete sur le formulaire de devis + page de gestion
-  // ============================================================
-  function peuplerDatalistClients() {
-    const datalist = document.getElementById('clients-datalist');
-    datalist.innerHTML = chargerClients()
-      .map(c => `<option value="${c.nom}"></option>`)
-      .join('');
+  // ---------- Comparer avec d'autres matières ----------
+  const blocComparaisonMatieres = document.getElementById('bloc-comparaison-matieres');
+  const listeMatieresComparaisonEl = document.getElementById('liste-matieres-comparaison');
+
+  document.getElementById('btn-toggle-comparaison-matieres').addEventListener('click', () => {
+    const visible = blocComparaisonMatieres.style.display === 'block';
+    blocComparaisonMatieres.style.display = visible ? 'none' : 'block';
+    if (!visible) {
+      const toutes = chargerMateriaux();
+      listeMatieresComparaisonEl.innerHTML = Object.entries(toutes).flatMap(([cat, liste]) =>
+        liste.map(m => `<label class="case-ligne"><input type="checkbox" value="${m.code}" data-prix="${m.prixKg ?? 0}"> ${m.code} (${m.prixKg ?? '—'} €/kg)</label>`)
+      ).join('');
+    }
+  });
+
+  document.getElementById('btn-comparer-matieres').addEventListener('click', () => {
+    const donnees = lireFormulaire();
+    const cases = [...listeMatieresComparaisonEl.querySelectorAll('input:checked')];
+    if (cases.length === 0) {
+      document.getElementById('resultat-comparaison-matieres').innerHTML = '<p class="empty-state">Coche au moins une matière à comparer.</p>';
+      return;
+    }
+    const lignes = cases.map(c => {
+      const detail = calculerDevis(donnees, { matiereOverride: { prixMatiere: c.dataset.prix } });
+      return `<div class="ligne-comparaison"><span>${c.value}</span><span>${formaterPrix(detail.prixTotal)}</span></div>`;
+    }).join('');
+    document.getElementById('resultat-comparaison-matieres').innerHTML = lignes;
+  });
+
+  // ---------- Comparer par palier de quantité ----------
+  const blocPaliers = document.getElementById('bloc-paliers');
+
+  document.getElementById('btn-toggle-paliers').addEventListener('click', () => {
+    blocPaliers.style.display = blocPaliers.style.display === 'block' ? 'none' : 'block';
+  });
+
+  document.getElementById('btn-comparer-paliers').addEventListener('click', () => {
+    const donnees = lireFormulaire();
+    const quantites = document.getElementById('paliers-quantites').value
+      .split(',')
+      .map(v => Number(v.trim()))
+      .filter(v => v > 0);
+
+    if (quantites.length === 0) {
+      document.getElementById('resultat-paliers').innerHTML = '<p class="empty-state">Indique au moins une quantité valide.</p>';
+      return;
+    }
+
+    const lignes = quantites.map(q => {
+      const detail = calculerDevis(donnees, { quantiteOverride: q });
+      return `<div class="ligne-comparaison"><span>${q} pièce${q > 1 ? 's' : ''}</span><span>${formaterPrix(detail.prixUnitaire)} / pièce — total ${formaterPrix(detail.prixTotal)}</span></div>`;
+    }).join('');
+    document.getElementById('resultat-paliers').innerHTML = lignes;
+  });
+
+  // ---------- Référence pièce : autocomplétion depuis l'historique ----------
+  function peuplerDatalistReferences() {
+    const references = [...new Set(chargerDevis().map(d => d.reference).filter(Boolean))];
+    document.getElementById('references-datalist').innerHTML =
+      references.map(r => `<option value="${r}"></option>`).join('');
   }
-  peuplerDatalistClients();
+  peuplerDatalistReferences();
+
+  // ============================================================
+  // CLIENTS — choix / création dans le formulaire de devis + page de gestion
+  // ============================================================
+  const selectClientDevis = document.getElementById('client-select');
+  const champNouveauClientDevis = document.getElementById('champ-nouveau-client-devis');
+  const inputNouveauClientDevisNom = document.getElementById('nouveau-client-nom-devis');
+
+  function peuplerSelectClientDevis(nomAConserver) {
+    const clients = chargerClients();
+    const valeurActuelle = nomAConserver
+      || (selectClientDevis.value !== '__nouveau__' ? selectClientDevis.value : null);
+
+    selectClientDevis.innerHTML = clients
+      .map(c => `<option value="${c.nom}">${c.nom}</option>`)
+      .join('') + '<option value="__nouveau__">+ Nouveau client…</option>';
+
+    if (clients.length === 0) {
+      // Aucun client encore connu : on démarre directement en mode création.
+      selectClientDevis.value = '__nouveau__';
+    } else if (valeurActuelle && clients.some(c => c.nom === valeurActuelle)) {
+      selectClientDevis.value = valeurActuelle;
+    } else {
+      selectClientDevis.value = clients[0].nom;
+    }
+
+    champNouveauClientDevis.style.display = selectClientDevis.value === '__nouveau__' ? 'flex' : 'none';
+    if (selectClientDevis.value !== '__nouveau__') {
+      inputNouveauClientDevisNom.value = '';
+    }
+  }
+  peuplerSelectClientDevis();
+
+  const inputMarge = document.getElementById('marge');
+  // (appliquerMargeSelonClient est appelée juste après sa définition, plus bas)
+
+  function margeParDefautPourType(type) {
+    const prefs = chargerPreferences();
+    if (type === 'pro') return prefs.margePro;
+    if (type === 'gros-compte') return prefs.margeGrosCompte;
+    return prefs.margeParticulier;
+  }
+
+  function appliquerMargeSelonClient() {
+    if (selectClientDevis.value === '__nouveau__') {
+      inputMarge.value = margeParDefautPourType(document.getElementById('nouveau-client-type-devis').value);
+    } else {
+      const client = chargerClients().find(c => c.nom === selectClientDevis.value);
+      inputMarge.value = margeParDefautPourType(client?.type);
+    }
+  }
+
+  selectClientDevis.addEventListener('change', () => {
+    champNouveauClientDevis.style.display = selectClientDevis.value === '__nouveau__' ? 'flex' : 'none';
+    if (selectClientDevis.value === '__nouveau__') {
+      inputNouveauClientDevisNom.focus();
+    }
+    appliquerMargeSelonClient();
+  });
+
+  document.getElementById('nouveau-client-type-devis').addEventListener('change', appliquerMargeSelonClient);
+  appliquerMargeSelonClient();
 
   const listeClientsEl = document.getElementById('liste-clients');
   const inputClientId = document.getElementById('client-id-edition');
   const inputClientNom = document.getElementById('nouveau-client-nom');
+  const inputClientType = document.getElementById('nouveau-client-type');
   const inputClientEmail = document.getElementById('nouveau-client-email');
   const inputClientTel = document.getElementById('nouveau-client-telephone');
   const inputClientAdresse = document.getElementById('nouveau-client-adresse');
@@ -326,6 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function reinitialiserFormClient() {
     inputClientId.value = '';
     inputClientNom.value = '';
+    inputClientType.value = 'particulier';
     inputClientEmail.value = '';
     inputClientTel.value = '';
     inputClientAdresse.value = '';
@@ -346,6 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="client-item" data-id="${c.id}">
         <div class="client-item-info">
           <strong>${c.nom}</strong>
+          <span class="badge-type-client">${{particulier:'Particulier', pro:'Pro', 'gros-compte':'Gros compte'}[c.type] || 'Particulier'}</span>
           ${[c.email, c.telephone].filter(Boolean).join(' · ') ? `<br><small>${[c.email, c.telephone].filter(Boolean).join(' · ')}</small>` : ''}
           ${c.adresse ? `<br><small>${c.adresse}</small>` : ''}
           ${c.notes ? `<br><small>${c.notes}</small>` : ''}
@@ -368,6 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!client) return;
       inputClientId.value = client.id;
       inputClientNom.value = client.nom;
+      inputClientType.value = client.type || 'particulier';
       inputClientEmail.value = client.email || '';
       inputClientTel.value = client.telephone || '';
       inputClientAdresse.value = client.adresse || '';
@@ -381,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!confirm(`Supprimer le client "${client?.nom}" ? (les devis déjà enregistrés ne sont pas supprimés)`)) return;
       supprimerClient(id);
       afficherClients();
-      peuplerDatalistClients();
+      peuplerSelectClientDevis();
       if (inputClientId.value === id) reinitialiserFormClient();
     }
   });
@@ -396,6 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const champs = {
       nom,
+      type: inputClientType.value,
       email: inputClientEmail.value.trim(),
       telephone: inputClientTel.value.trim(),
       adresse: inputClientAdresse.value.trim(),
@@ -410,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     reinitialiserFormClient();
     afficherClients();
-    peuplerDatalistClients();
+    peuplerSelectClientDevis();
   });
 
   // ============================================================
@@ -418,10 +650,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   function afficherHistorique() {
     const conteneur = document.getElementById('liste-historique');
-    const liste = chargerDevis();
+    const recherche = (document.getElementById('recherche-historique').value || '').trim().toLowerCase();
+    let liste = chargerDevis();
+
+    if (recherche) {
+      liste = liste.filter(d =>
+        (d.client || '').toLowerCase().includes(recherche) ||
+        (d.reference || '').toLowerCase().includes(recherche)
+      );
+    }
 
     if (liste.length === 0) {
-      conteneur.innerHTML = '<p class="empty-state">Aucun devis enregistré pour l\'instant.</p>';
+      conteneur.innerHTML = '<p class="empty-state">Aucun devis trouvé.</p>';
       return;
     }
 
@@ -429,7 +669,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="devis-item" data-id="${devis.id}">
         <div class="devis-item-info">
           <strong>${devis.client || 'Client non renseigné'}</strong>
-          — ${devis.matiere}, ${devis.operation}, qté ${devis.quantite}
+          ${devis.reference ? ` <span class="badge-reference">${devis.reference}</span>` : ''}
+          — ${devis.matiere}, qté ${devis.quantite}
           — ${formaterPrix(devis.prixTotal)}
           <br><small>${new Date(devis.date).toLocaleString('fr-FR')}</small>
         </div>
@@ -437,6 +678,33 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
   }
+
+  document.getElementById('recherche-historique').addEventListener('input', afficherHistorique);
+
+  // ============================================================
+  // PARAMÈTRES — préférences (marges par défaut, frais fixes par défaut)
+  // ============================================================
+  function afficherPreferences() {
+    const prefs = chargerPreferences();
+    document.getElementById('pref-marge-particulier').value = prefs.margeParticulier;
+    document.getElementById('pref-marge-pro').value = prefs.margePro;
+    document.getElementById('pref-marge-gros-compte').value = prefs.margeGrosCompte;
+    document.getElementById('pref-frais-transport').value = prefs.fraisTransport;
+    document.getElementById('pref-frais-emballage').value = prefs.fraisEmballage;
+  }
+  afficherPreferences();
+
+  document.getElementById('btn-enregistrer-preferences').addEventListener('click', () => {
+    sauvegarderPreferences({
+      margeParticulier: Number(document.getElementById('pref-marge-particulier').value) || 0,
+      margePro: Number(document.getElementById('pref-marge-pro').value) || 0,
+      margeGrosCompte: Number(document.getElementById('pref-marge-gros-compte').value) || 0,
+      fraisTransport: Number(document.getElementById('pref-frais-transport').value) || 0,
+      fraisEmballage: Number(document.getElementById('pref-frais-emballage').value) || 0
+    });
+    preremplirFraisFixesDepuisPreferences();
+    alert('Préférences enregistrées.');
+  });
 
   document.getElementById('liste-historique').addEventListener('click', (e) => {
     if (!e.target.matches('.btn-supprimer-devis')) return;

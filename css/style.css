@@ -691,6 +691,131 @@ input[type="number"],
   border-top: 1px solid var(--border);
 }
 
+/* ---------- Lignes répétables (opérations, sous-traitance) ---------- */
+
+.ligne-repetable {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  align-items: center;
+}
+
+.ligne-repetable select,
+.ligne-repetable input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+}
+
+.btn-supprimer-ligne {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.3rem;
+}
+
+.btn-supprimer-ligne:hover {
+  color: var(--danger);
+}
+
+#btn-ajouter-operation,
+#btn-ajouter-sous-traitance {
+  margin-top: 0.2rem;
+}
+
+/* ---------- Frais fixes ---------- */
+
+.frais-fixe-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.frais-fixe-ligne input[type="number"] {
+  width: 5rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+/* ---------- Sections avancées (comparaisons) ---------- */
+
+.section-avancee {
+  margin-bottom: 1.5rem;
+}
+
+.section-avancee > div {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.liste-cases {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.case-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.ligne-comparaison {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+}
+
+.ligne-comparaison:last-child {
+  border-bottom: none;
+}
+
+/* ---------- Badges ---------- */
+
+.badge-type-client,
+.badge-reference {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.badge-reference {
+  font-family: var(--font-mono);
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 480px) {

@@ -138,6 +138,7 @@ function ajouterClient(client) {
   const nouveau = {
     id: 'client_' + Date.now(),
     nom: (client.nom || '').trim(),
+    type: client.type || 'particulier',
     email: client.email || '',
     telephone: client.telephone || '',
     adresse: client.adresse || '',
@@ -158,4 +159,37 @@ function supprimerClient(id) {
   const liste = chargerClients().filter(c => c.id !== id);
   sauvegarderClientsListe(liste);
   return liste;
+}
+
+/**
+ * Préférences — valeurs par défaut réutilisées dans les devis :
+ * marge par type de client, montants par défaut des frais fixes.
+ */
+
+const STORAGE_KEY_PREFERENCES = 'ch1ffra_preferences';
+
+const PREFERENCES_PAR_DEFAUT = {
+  margeParticulier: 25,
+  margePro: 20,
+  margeGrosCompte: 12,
+  fraisTransport: 15,
+  fraisEmballage: 5
+};
+
+function chargerPreferences() {
+  const brut = localStorage.getItem(STORAGE_KEY_PREFERENCES);
+  if (!brut) return { ...PREFERENCES_PAR_DEFAUT };
+  try {
+    return { ...PREFERENCES_PAR_DEFAUT, ...JSON.parse(brut) };
+  } catch (e) {
+    console.error('Préférences corrompues, réinitialisation.', e);
+    return { ...PREFERENCES_PAR_DEFAUT };
+  }
+}
+
+function sauvegarderPreferences(champs) {
+  const actuelles = chargerPreferences();
+  const fusion = { ...actuelles, ...champs };
+  localStorage.setItem(STORAGE_KEY_PREFERENCES, JSON.stringify(fusion));
+  return fusion;
 }
