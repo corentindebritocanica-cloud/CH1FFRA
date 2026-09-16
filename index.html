@@ -4,21 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ch1ffra — Aide au chiffrage mécanique</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
   <header class="app-header">
-    <h1>Ch1ffra</h1>
+    <h1 class="wordmark" aria-label="Ch1ffra">
+      <span aria-hidden="true">C</span><span aria-hidden="true">h</span><span aria-hidden="true">1</span><span aria-hidden="true">f</span><span aria-hidden="true">f</span><span aria-hidden="true">r</span><span aria-hidden="true">a</span>
+    </h1>
     <p class="subtitle">Outil d'aide au chiffrage pour ateliers de mécanique</p>
-  </header>
 
-  <nav class="app-nav">
-    <button class="nav-btn active" data-view="devis">Nouveau devis</button>
-    <button class="nav-btn" data-view="historique">Historique</button>
-    <button class="nav-btn" data-view="matieres">Matières</button>
-    <button class="nav-btn" data-view="parametres">Paramètres</button>
-  </nav>
+    <nav class="app-nav">
+      <button class="nav-btn active" data-view="devis">Nouveau devis</button>
+      <button class="nav-btn" data-view="historique">Historique</button>
+      <button class="nav-btn" data-view="matieres">Matières</button>
+      <button class="nav-btn" data-view="parametres">Paramètres</button>
+    </nav>
+  </header>
 
   <main>
 
@@ -90,7 +97,8 @@
         </fieldset>
 
         <div class="result-box" id="result-box">
-          <p>Prix total estimé : <strong id="prix-total">–</strong></p>
+          <p>Prix total estimé</p>
+          <strong id="prix-total" data-valeur="0">–</strong>
         </div>
 
         <div class="actions">

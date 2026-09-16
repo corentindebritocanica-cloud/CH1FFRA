@@ -8,6 +8,12 @@
 
 - **Validation terrain (section 6, étape 1)** : pas encore faite — développement lancé en parallèle.
 - **Squelette du projet créé** : `index.html`, `css/style.css`, `js/calcul.js`, `js/storage.js`, `js/app.js`.
+- **Identité visuelle définie** (inspiration https://www.fabianfallend.com/, adaptée à un outil de saisie quotidien) :
+  - Bandeau d'en-tête sombre (graphite `#14161a`) + zone de travail claire façon papier technique (`#eef1f4`, léger quadrillage bleuté en fond, esprit papier calque/bleu de mécanicien)
+  - Typo : Space Grotesk pour les titres, Inter pour le texte courant, IBM Plex Mono pour les désignations matière, quantités et prix
+  - Accent unique bleu plan technique (`#1957db`), réservé aux états actifs
+  - Fini les cartes blanches à ombre/coins arrondis façon SaaS : sections séparées par des filets fins façon fiche technique
+  - Animation : le nom "Ch1ffra" apparaît lettre par lettre au chargement ; le prix total du devis s'anime en comptant jusqu'au résultat au clic sur "Calculer" (repli statique respecté si `prefers-reduced-motion`)
 - Fonctionnel pour l'instant :
   - Formulaire de devis (matière, épaisseur, quantité, opération, temps/taux/prix matière/marge)
   - **Page dédiée "Matières"** : bibliothèque modifiable (ajout, édition, suppression de matières et de catégories entières), avec désignations normalisées (aciers, aciers inox ex. X2CrNiMo17-12-2 / 316L, fontes, aluminiums, plastiques techniques PTFE/POM/PE/PA6-66/PEEK/PMMA/PC/PVC), densité et prix indicatif au kg éditables pour chaque matière — toute modification se répercute immédiatement dans le menu déroulant du formulaire de devis

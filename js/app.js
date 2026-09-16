@@ -192,6 +192,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('form-devis');
   const prixTotalEl = document.getElementById('prix-total');
 
+  function animerPrix(el, valeurCible) {
+    const reduceMotion = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+    if (reduceMotion) {
+      el.textContent = formaterPrix(valeurCible);
+      el.dataset.valeur = valeurCible;
+      return;
+    }
+
+    const valeurDepart = Number(el.dataset.valeur) || 0;
+    const duree = 500;
+    const debut = performance.now();
+
+    function etape(maintenant) {
+      const progression = Math.min((maintenant - debut) / duree, 1);
+      // easing léger pour un rendu plus naturel qu'une interpolation linéaire
+      const facile = 1 - Math.pow(1 - progression, 3);
+      const valeurActuelle = valeurDepart + (valeurCible - valeurDepart) * facile;
+      el.textContent = formaterPrix(valeurActuelle);
+      if (progression < 1) {
+        requestAnimationFrame(etape);
+      } else {
+        el.dataset.valeur = valeurCible;
+      }
+    }
+    requestAnimationFrame(etape);
+  }
+
   function lireFormulaire() {
     const data = new FormData(form);
     return {
@@ -211,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function calculerEtAfficher() {
     const donnees = lireFormulaire();
     const total = calculerPrixTotal(donnees);
-    prixTotalEl.textContent = formaterPrix(total);
+    animerPrix(prixTotalEl, total);
     return { donnees, total };
   }
 
