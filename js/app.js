@@ -105,15 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
     densiteInfo.textContent = densite
       ? `Densité indicative : ${densite} g/cm³`
       : '';
+    // Le prix matière vient uniquement de la fiche matière (page Matières) —
+    // champ en lecture seule dans le devis, pas de saisie libre possible.
+    prixMatiereInput.value = option.dataset.prix || '';
   }
 
-  selectMatiere.addEventListener('change', () => {
-    afficherInfosMatiereSelectionnee();
-    const option = selectMatiere.selectedOptions[0];
-    const prix = option?.dataset.prix;
-    // Suggestion automatique du prix matière — l'utilisateur garde la main et peut l'ajuster.
-    if (prix) prixMatiereInput.value = prix;
-  });
+  selectMatiere.addEventListener('change', afficherInfosMatiereSelectionnee);
 
   peuplerSelectDevis();
 

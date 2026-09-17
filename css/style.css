@@ -49,6 +49,24 @@
   box-sizing: border-box;
 }
 
+/* Filet de sécurité : aucun champ ne doit jamais dépasser son conteneur.
+   Corrige en particulier un bug classique de Safari iOS où un <select>
+   sans largeur explicite se dimensionne sur son option la plus longue
+   (ex : les désignations de matières) plutôt que sur son conteneur. */
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
 /* Base pour tous les boutons — les styles plus spécifiques (.nav-btn, .lien-discret,
    .carte-choix, .btn-supprimer-*...) reprennent la main via leur classe. */
 button {
@@ -440,6 +458,12 @@ legend {
   color: var(--text-muted);
 }
 
+.field input[readonly] {
+  background: var(--bg-elevated-2);
+  color: var(--text-muted);
+  cursor: default;
+}
+
 .field input:focus,
 .field select:focus {
   outline: 2px solid var(--accent);
@@ -676,12 +700,18 @@ input[type="number"],
 
 .devis-item {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.4rem 1rem;
   padding: 0.85rem 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
+}
+
+.devis-item-info {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .devis-item strong {
@@ -713,11 +743,17 @@ input[type="number"],
 
 .client-item {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 0.4rem 1rem;
   padding: 0.9rem 0;
   border-bottom: 1px solid var(--border);
+}
+
+.client-item-info {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .client-item-info strong {
@@ -764,8 +800,10 @@ input[type="number"],
 
 .categorie-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
+  gap: 0.4rem 0.75rem;
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.4rem;
   margin-bottom: 0.6rem;
@@ -773,6 +811,8 @@ input[type="number"],
 
 .categorie-header h3 {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.05rem;
@@ -807,6 +847,11 @@ input[type="number"],
   align-items: flex-start;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+}
+
+.matiere-carte-header > div {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .matiere-carte-header strong {
@@ -971,16 +1016,18 @@ form.mode-rapide .section-detaillee {
 
 .case-ligne {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem 0.5rem;
   font-size: 0.85rem;
   color: var(--text);
 }
 
 .ligne-comparaison {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.3rem 1rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.85rem;
