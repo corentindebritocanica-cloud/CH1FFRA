@@ -10,7 +10,7 @@
 
 - **Validation terrain (section 6, étape 1)** : pas encore faite — développement lancé en parallèle.
 - **Squelette du projet créé** : `index.html`, `css/style.css`, `js/calcul.js`, `js/storage.js`, `js/app.js`.
-- **Identité visuelle définie** (thème sombre inspiré de https://bitnomial.com/, adapté à un outil de saisie quotidien) :
+- **Identité visuelle définie** (thème sombre inspiré de https://bitnomial.com/, adapté à un outil de saisie quotidien) — *remplacée le 17/09 par la refonte design/navigation décrite plus bas (plan technique + reglette + carnet d'atelier) ; détail conservé ici pour l'historique* :
   - Logo vectorisé (`assets/logo.svg`, `assets/logo-dark-bg.svg`) à partir du wordmark fourni par l'utilisateur — "CH1FFRA" en majuscules, C/H/1 en contour, FFRA plein
   - Fond sombre sur toute l'app (`#0a0c10`), avec un fond animé fluide en arrière-plan : trois masses colorées floutées (bleu, sarcelle, violet) qui dérivent lentement en boucle, façon aurore — désactivé si `prefers-reduced-motion`
   - En-tête et pied de page légèrement plus clairs (`#14171c`) avec un filet de séparation, pour structurer sans casser l'unité sombre
@@ -47,8 +47,14 @@
   - Page "Matières" passée d'un tableau à 7 colonnes (illisible sur petit écran) à des fiches empilées, comme la page Clients
   - Lignes d'opérations et de sous-traitance qui s'empilent sur 2 lignes en dessous de 480px de large plutôt qu'une rangée serrée
   - Boutons et champs à 44px de hauteur minimum (zones tactiles plus confortables en atelier)
-  - **Bascule thème clair/sombre** (Paramètres > Apparence), persistée en localStorage — utile en plein jour dans un atelier avec de grandes baies vitrées. Le fond animé fluide se désactive automatiquement en thème clair
+  - **Bascule thème clair/sombre** (Paramètres > Apparence), persistée en localStorage — utile en plein jour dans un atelier avec de grandes baies vitrées
   - Contraste du texte discret (`--text-muted`) légèrement augmenté pour une meilleure lisibilité en coup d'œil
+- **Refonte design/navigation (17/09)** — remplacement complet de la nav à onglets et de l'identité visuelle initiale :
+  - Nouveau paradigme de navigation : plus d'onglets classiques, les 6 écrans (Accueil, Devis, Historique, Clients, Matières, Paramètres) sont posés côte à côte sur un plan horizontal, et on s'y déplace via une **règle graduée fixée en bas d'écran**, avec un curseur de vernier (drag à la souris/au doigt, clic direct sur une graduation, ou flèches clavier — `role="slider"` accessible)
+  - Chaque écran est traité comme une fiche technique : fond quadrillé façon calque, un onglet de classeur épinglé en haut pendant le défilement, une bande de perforations sur le bord gauche (identité "carnet d'atelier")
+  - Nouvelle palette : fond graphite neutre (fin du fond animé bleu/violet façon SaaS), accent unique orange "calibration", boutons en IBM Plex Mono capitales, ombres remplacées par un principe de double-trait dur (jamais de flou façon carte SaaS)
+  - Un tampon "ENREGISTRÉ" s'imprime en overlay sur le prix total à la sauvegarde d'un devis (clin d'œil au bon-à-tirer d'atelier), en plus du flash déjà existant
+  - Repli `prefers-reduced-motion` conservé partout (transitions du plan, tampon, animation d'arrivée sur une fiche)
 - Pas encore fait :
   - Numérotation automatique des devis, statut (brouillon/envoyé/accepté...), date de validité + relance, envoi par email, conversion devis → facture, Factur-X, signature client
   - Traçabilité matière (certificat 3.1), ordre de fabrication et suivi de production, rapport de premier article (FAI)
