@@ -20,6 +20,32 @@ function toast(message, type = 'info') {
   }, 2800);
 }
 
+/**
+ * Tampon "encreur" — s'imprime sur un element au moment d'une validation
+ * (ex : enregistrement d'un devis), clin d'oeil au bon-a-tirer d'atelier.
+ * Fonction globale : accessible depuis app.js comme toast().
+ */
+function tamponner(cible, texte) {
+  if (!cible) return;
+  const reduceMotion = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+
+  cible.querySelector('.tampon')?.remove();
+
+  const tampon = document.createElement('div');
+  tampon.className = 'tampon';
+  tampon.textContent = texte || 'Enregistré';
+  cible.appendChild(tampon);
+
+  if (reduceMotion) {
+    tampon.style.opacity = '1';
+  } else {
+    requestAnimationFrame(() => tampon.classList.add('tampon-jouer'));
+  }
+  setTimeout(() => tampon.remove(), 1800);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ============================================================
@@ -239,17 +265,78 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================
-  // NAVIGATION ENTRE VUES
+  // NAVIGATION — plan technique + reglette de vernier
+  // Les 6 fiches sont posees cote a cote sur .plan-surface ; on ne
+  // masque plus une vue pour en montrer une autre, on translate le
+  // plan pour se deplacer jusqu'a la fiche voulue. La reglette du
+  // bas est le seul instrument de commande (clic, glisse, clavier).
   // ============================================================
-  const navButtons = document.querySelectorAll('.nav-btn');
+  const ORDRE_VUES = ['accueil', 'devis', 'historique', 'clients', 'matieres', 'parametres'];
+  const LIBELLES_VUES = {
+    accueil: 'Accueil', devis: 'Devis', historique: 'Historique',
+    clients: 'Clients', matieres: 'Matières', parametres: 'Paramètres'
+  };
+
   const views = document.querySelectorAll('.view');
+  const planEl = document.getElementById('plan');
+  const planSurface = document.getElementById('plan-surface');
+  const regleTicks = document.querySelectorAll('.regle-tick');
+  const regleCurseur = document.getElementById('regle-curseur');
+  const regleLecture = document.getElementById('regle-lecture');
+  const regleEl = document.getElementById('regle');
+
+  const reduceMotion = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+
+  let indexActuel = 0;
+
+  function largeurPasVue() {
+    return planEl ? planEl.getBoundingClientRect().width : window.innerWidth;
+  }
+
+  function ajusterLargeurVues() {
+    document.documentElement.style.setProperty('--pane-w', largeurPasVue() + 'px');
+    if (planSurface) planSurface.style.transform = `translateX(-${indexActuel * largeurPasVue()}px)`;
+  }
+  window.addEventListener('resize', ajusterLargeurVues);
+  ajusterLargeurVues();
+
+  function positionnerCurseur(index) {
+    const pourcent = ((index + 0.5) / ORDRE_VUES.length) * 100;
+    regleCurseur.style.left = pourcent + '%';
+  }
 
   function allerVersVue(nomVue) {
-    navButtons.forEach(b => b.classList.remove('active'));
-    views.forEach(v => v.classList.remove('active'));
+    const index = ORDRE_VUES.indexOf(nomVue);
+    if (index === -1) return;
+    indexActuel = index;
 
-    document.querySelector(`.nav-btn[data-view="${nomVue}"]`)?.classList.add('active');
-    document.getElementById(`view-${nomVue}`)?.classList.add('active');
+    views.forEach(v => {
+      const estActive = v.id === `view-${nomVue}`;
+      v.classList.toggle('active', estActive);
+      v.inert = !estActive;
+      if (estActive && !reduceMotion) {
+        v.classList.remove('fiche-arrivee');
+        void v.offsetWidth;
+        v.classList.add('fiche-arrivee');
+        setTimeout(() => v.classList.remove('fiche-arrivee'), 500);
+      }
+    });
+
+    regleTicks.forEach(t => t.classList.toggle('active', t.dataset.view === nomVue));
+    positionnerCurseur(index);
+    regleLecture.textContent = LIBELLES_VUES[nomVue];
+    regleCurseur.setAttribute('aria-valuenow', String(index));
+    regleCurseur.setAttribute('aria-valuetext', LIBELLES_VUES[nomVue]);
+
+    if (planSurface) planSurface.style.transform = `translateX(-${index * largeurPasVue()}px)`;
+
+    if (!reduceMotion && planEl) {
+      planEl.classList.remove('zoom-pulse');
+      void planEl.offsetWidth;
+      planEl.classList.add('zoom-pulse');
+    }
 
     if (nomVue === 'historique') afficherHistorique();
     if (nomVue === 'matieres') afficherPageMatieres();
@@ -258,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nomVue === 'parametres') afficherPreferences();
   }
 
-  navButtons.forEach(btn => {
+  regleTicks.forEach(btn => {
     btn.addEventListener('click', () => allerVersVue(btn.dataset.view));
   });
 
@@ -266,6 +353,53 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-view-link]').forEach(lien => {
     lien.addEventListener('click', () => allerVersVue(lien.dataset.viewLink));
   });
+
+  // ---------- Curseur de vernier : glisse au doigt/souris ----------
+  let glisseEnCours = false;
+
+  function indexDepuisPointeur(clientX) {
+    const rect = regleEl.getBoundingClientRect();
+    const relatif = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+    return Math.min(ORDRE_VUES.length - 1, Math.floor((relatif / rect.width) * ORDRE_VUES.length));
+  }
+
+  regleCurseur.addEventListener('pointerdown', (e) => {
+    glisseEnCours = true;
+    regleCurseur.setPointerCapture(e.pointerId);
+    regleCurseur.style.transition = 'none';
+  });
+
+  regleCurseur.addEventListener('pointermove', (e) => {
+    if (!glisseEnCours) return;
+    const rect = regleEl.getBoundingClientRect();
+    const relatif = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+    regleCurseur.style.left = (relatif / rect.width) * 100 + '%';
+    const idx = indexDepuisPointeur(e.clientX);
+    regleLecture.textContent = LIBELLES_VUES[ORDRE_VUES[idx]];
+  });
+
+  function finGlisse(e) {
+    if (!glisseEnCours) return;
+    glisseEnCours = false;
+    regleCurseur.style.transition = '';
+    allerVersVue(ORDRE_VUES[indexDepuisPointeur(e.clientX)]);
+  }
+  regleCurseur.addEventListener('pointerup', finGlisse);
+  regleCurseur.addEventListener('pointercancel', finGlisse);
+
+  // ---------- Curseur de vernier : clavier (accessibilite) ----------
+  regleCurseur.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); allerVersVue(ORDRE_VUES[Math.min(indexActuel + 1, ORDRE_VUES.length - 1)]); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); allerVersVue(ORDRE_VUES[Math.max(indexActuel - 1, 0)]); }
+    if (e.key === 'Home') { e.preventDefault(); allerVersVue(ORDRE_VUES[0]); }
+    if (e.key === 'End') { e.preventDefault(); allerVersVue(ORDRE_VUES[ORDRE_VUES.length - 1]); }
+  });
+
+  // Etat initial : fixe la position du curseur et l'etat inert sans
+  // relancer les rechargements de donnees (afficherHistorique, etc.)
+  // qui ne servent qu'a l'arrivee reelle sur une fiche.
+  views.forEach(v => { v.inert = v.id !== 'view-accueil'; });
+  positionnerCurseur(0);
 
   // ============================================================
   // ACCUEIL
@@ -493,6 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resultBoxEl.classList.add('result-box-flash');
     setTimeout(() => resultBoxEl.classList.remove('result-box-flash'), 700);
+    tamponner(resultBoxEl, 'Enregistré');
 
     toast('Devis enregistré dans l\'historique.', 'success');
   });

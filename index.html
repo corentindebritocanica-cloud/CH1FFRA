@@ -68,10 +68,6 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
     <p class="loading-caption">Mise en plan…</p>
   </div>
 
-  <div class="fluid-bg" aria-hidden="true">
-    <span></span><span></span><span></span>
-  </div>
-
   <header class="app-header">
     <svg class="wordmark" viewBox="0 0 695 119" role="img" aria-label="CH1FFRA">
       <title>CH1FFRA</title>
@@ -119,18 +115,16 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 -39 27 -78z" />
       </g>
     </svg>
-    <p class="subtitle">Outil d'aide au chiffrage pour ateliers de mécanique</p>
-
-    <nav class="app-nav">
-      <button class="nav-btn active" data-view="accueil">Accueil</button>
-      <button class="nav-btn" data-view="parametres">Paramètres</button>
-    </nav>
+    <p class="subtitle">Outil d'aide au chiffrage pour ateliers de mécanique <span class="version-tag">v0.1</span></p>
   </header>
 
-  <main>
+  <div class="plan" id="plan">
+    <div class="plan-surface" id="plan-surface">
 
     <!-- VUE : Accueil -->
     <section id="view-accueil" class="view active">
+      <div class="view-inner">
+      <div class="fiche-onglet">Accueil</div>
       <h2>Que veux-tu faire ?</h2>
       <div class="accueil-choix">
         <button type="button" class="carte-choix" id="btn-accueil-nouveau-devis">
@@ -142,10 +136,13 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           <span class="carte-choix-desc">Retrouver, consulter ou dupliquer un devis déjà enregistré.</span>
         </button>
       </div>
+      </div><!-- /view-inner -->
     </section>
 
     <!-- VUE : Nouveau devis -->
     <section id="view-devis" class="view">
+      <div class="view-inner">
+      <div class="fiche-onglet">Devis</div>
       <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <form id="form-devis" class="mode-rapide">
 
@@ -314,10 +311,13 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
         </div>
 
       </form>
+      </div><!-- /view-inner -->
     </section>
 
     <!-- VUE : Historique -->
     <section id="view-historique" class="view">
+      <div class="view-inner">
+      <div class="fiche-onglet">Historique</div>
       <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Historique des devis</h2>
       <div class="field">
@@ -326,10 +326,13 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
       <div id="liste-historique">
         <p class="empty-state">Aucun devis enregistré pour l'instant.</p>
       </div>
+      </div><!-- /view-inner -->
     </section>
 
     <!-- VUE : Clients -->
     <section id="view-clients" class="view">
+      <div class="view-inner">
+      <div class="fiche-onglet">Clients</div>
       <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Clients</h2>
       <p class="view-intro">Retrouve ici les clients créés automatiquement depuis tes devis, ou ajoute-en directement. Complète leurs coordonnées quand tu as le temps.</p>
@@ -380,10 +383,13 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
           <button type="button" id="btn-annuler-edition-client" style="display:none;">Annuler</button>
         </div>
       </fieldset>
+      </div><!-- /view-inner -->
     </section>
 
     <!-- VUE : Matières -->
     <section id="view-matieres" class="view">
+      <div class="view-inner">
+      <div class="fiche-onglet">Matières</div>
       <button type="button" class="lien-discret lien-retour" data-view-link="accueil">← Accueil</button>
       <h2>Bibliothèque de matières</h2>
       <p class="view-intro">Modifie les densités et prix indicatifs, ajoute tes propres matières ou catégories. Ces valeurs servent de base au formulaire de devis (le prix matière reste ajustable au cas par cas).</p>
@@ -435,10 +441,13 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
         <button type="button" id="btn-ajouter-matiere">Ajouter la matière</button>
       </fieldset>
+      </div><!-- /view-inner -->
     </section>
 
     <!-- VUE : Paramètres -->
     <section id="view-parametres" class="view">
+      <div class="view-inner">
+      <div class="fiche-onglet">Paramètres</div>
       <h2>Paramètres</h2>
 
       <fieldset>
@@ -501,13 +510,29 @@ m182 -283 c11 -38 41 -136 66 -217 25 -80 46 -149 46 -152 0 -3 -64 -6 -141
 
         <button type="button" id="btn-enregistrer-preferences">Enregistrer les préférences</button>
       </fieldset>
+      </div><!-- /view-inner -->
     </section>
 
-  </main>
+    </div><!-- /plan-surface -->
+  </div><!-- /plan -->
 
-  <footer class="app-footer">
-    <p>Ch1ffra — v0.1 (MVP en cours de développement)</p>
-  </footer>
+  <nav class="regle" id="regle" aria-label="Navigation principale">
+    <div class="regle-rail">
+      <div class="regle-curseur" id="regle-curseur" role="slider" tabindex="0"
+           aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"
+           aria-label="Section active" aria-valuetext="Accueil">
+        <span class="regle-lecture" id="regle-lecture">Accueil</span>
+      </div>
+    </div>
+    <div class="regle-graduations" id="regle-graduations">
+      <button type="button" class="regle-tick active" data-view="accueil"><span>Accueil</span></button>
+      <button type="button" class="regle-tick" data-view="devis"><span>Devis</span></button>
+      <button type="button" class="regle-tick" data-view="historique"><span>Historique</span></button>
+      <button type="button" class="regle-tick" data-view="clients"><span>Clients</span></button>
+      <button type="button" class="regle-tick" data-view="matieres"><span>Matières</span></button>
+      <button type="button" class="regle-tick" data-view="parametres"><span>Paramètres</span></button>
+    </div>
+  </nav>
 
   <!-- jsPDF (export PDF, chargé plus tard quand la fonctionnalité sera branchée) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

@@ -1,24 +1,28 @@
 /* ==========================================================
-   Ch1ffra — design tokens (v2 : theme sombre + fond fluide)
-   Inspiration : bitnomial.com (plateforme sombre, fond anime
-   fluide en arriere-plan, typo nette, ambiance "pro").
+   Ch1ffra — design tokens (v3 : plan technique + reglette + carnet)
+   Identite : plan infini quadrille (viewport CAO), navigation par
+   curseur de vernier sur regle graduee, materiaute "carnet d'atelier"
+   (onglets, perforations, ombres en double-trait, tampon).
+   Accent unique orange "calibration" — plus de bleu/dégradé SaaS.
    ========================================================== */
 
 :root {
-  --bg: #0a0c10;
-  --bg-elevated: #14171c;
-  --bg-elevated-2: #1b1f26;
-  --header-bg: rgba(20, 23, 28, 0.75);
-  --header-bg-solid: rgba(20, 23, 28, 0.9);
-  --border: #262b33;
-  --text: #f2f4f7;
-  --text-muted: #9aa4b2;
-  --accent: #2f6fed;
-  --accent-dark: #1d4ed8;
-  --accent-glow: rgba(47, 111, 237, 0.35);
+  --bg: #101211;
+  --bg-elevated: #171a19;
+  --bg-elevated-2: #1e2321;
+  --header-bg: rgba(16, 18, 17, 0.92);
+  --header-bg-solid: #1c211f;
+  --border: #2b302e;
+  --grid-line: rgba(255, 255, 255, 0.045);
+  --text: #eef1ee;
+  --text-muted: #8b958e;
+  --accent: #ff6a1f;
+  --accent-dark: #d9550f;
+  --accent-glow: rgba(255, 106, 31, 0.28);
   --danger: #e5484d;
-  --radius: 6px;
-  --shadow-bouton: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --radius: 2px;
+  --shadow-hard: 3px 3px 0 0 var(--border);
+  --shadow-hard-accent: 3px 3px 0 0 var(--accent-dark);
 
   --font-display: "Space Grotesk", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
@@ -26,23 +30,21 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #f4f6f8;
-  --bg-elevated: #ffffff;
-  --bg-elevated-2: #eef1f4;
-  --header-bg: rgba(255, 255, 255, 0.8);
-  --header-bg-solid: rgba(255, 255, 255, 0.92);
-  --border: #d8dee4;
-  --text: #14181c;
-  --text-muted: #5b6670;
-  --accent: #1957db;
-  --accent-dark: #123f9e;
-  --accent-glow: rgba(25, 87, 219, 0.2);
+  --bg: #ece6d8;
+  --bg-elevated: #f8f5ec;
+  --bg-elevated-2: #f0ead9;
+  --header-bg: rgba(236, 230, 216, 0.94);
+  --header-bg-solid: #efe9db;
+  --border: #cdc3a8;
+  --grid-line: rgba(28, 24, 12, 0.06);
+  --text: #201d15;
+  --text-muted: #6d6552;
+  --accent: #c8501a;
+  --accent-dark: #9c3d12;
+  --accent-glow: rgba(200, 80, 26, 0.22);
   --danger: #b4351e;
-  --shadow-bouton: 0 2px 6px rgba(20, 24, 28, 0.12);
-}
-
-:root[data-theme="light"] .fluid-bg {
-  display: none;
+  --shadow-hard: 3px 3px 0 0 var(--border);
+  --shadow-hard-accent: 3px 3px 0 0 var(--accent-dark);
 }
 
 * {
@@ -67,12 +69,16 @@ body {
   overflow-x: hidden;
 }
 
-/* Base pour tous les boutons — les styles plus spécifiques (.nav-btn, .lien-discret,
-   .carte-choix, .btn-supprimer-*...) reprennent la main via leur classe. */
+/* Base pour tous les boutons — les styles plus spécifiques (.regle-tick, .lien-discret,
+   .carte-choix, .btn-supprimer-*...) reprennent la main via leur classe.
+   Voix "instrument d'atelier" : capitales espacées en mono, ombre en
+   double-trait dur (jamais de flou façon carte SaaS). */
 button {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   min-height: 44px;
   padding: 0.65rem 1.1rem;
   border-radius: var(--radius);
@@ -80,8 +86,13 @@ button {
   background: var(--bg-elevated);
   color: var(--text);
   cursor: pointer;
-  box-shadow: var(--shadow-bouton);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: var(--shadow-hard);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--border);
 }
 
 button:disabled {
@@ -113,7 +124,7 @@ html {
   color: var(--text);
   font-size: 0.88rem;
   font-family: var(--font-body);
-  box-shadow: var(--shadow-bouton);
+  box-shadow: var(--shadow-hard);
   opacity: 0;
   transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
@@ -180,7 +191,6 @@ html {
   left: 0;
   width: 3px;
   background: var(--accent);
-  box-shadow: 0 0 14px 2px var(--accent-glow);
   opacity: 0;
   animation: balayage 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
   animation-delay: 0.2s;
@@ -217,85 +227,34 @@ html {
   }
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
-  min-height: 100vh;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
 }
 
-/* ---------- Fond fluide anime ---------- */
-
-.fluid-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.fluid-bg span {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.32;
-  mix-blend-mode: screen;
-  animation: drift ease-in-out infinite;
-}
-
-.fluid-bg span:nth-child(1) {
-  width: 520px;
-  height: 520px;
-  background: #2f6fed;
-  top: -140px;
-  left: -100px;
-  animation-duration: 24s;
-}
-
-.fluid-bg span:nth-child(2) {
-  width: 460px;
-  height: 460px;
-  background: #17b8a6;
-  bottom: -160px;
-  right: -90px;
-  animation-duration: 30s;
-  animation-delay: -6s;
-}
-
-.fluid-bg span:nth-child(3) {
-  width: 380px;
-  height: 380px;
-  background: #7c5cff;
-  top: 28%;
-  right: 8%;
-  animation-duration: 34s;
-  animation-delay: -14s;
-}
-
-@keyframes drift {
-  0%   { transform: translate(0, 0) scale(1); }
-  33%  { transform: translate(40px, -30px) scale(1.08); }
-  66%  { transform: translate(-30px, 25px) scale(0.95); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fluid-bg span {
-    animation: none;
-  }
+@supports (height: 100dvh) {
+  body { height: 100dvh; }
 }
 
 /* ---------- En-tete ---------- */
 
 .app-header {
+  flex: 0 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   background: var(--header-bg);
-  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  padding: 1.75rem 1.5rem 0;
+  padding: 1.5rem 1.5rem 1.1rem;
 }
 
 .wordmark {
@@ -313,12 +272,23 @@ body {
 }
 
 .subtitle {
-  margin: 0.6rem 0 1.5rem;
+  margin: 0.6rem 0 0;
   font-size: 0.9rem;
   color: var(--text-muted);
   opacity: 0;
   animation: fade-in 0.6s ease forwards;
   animation-delay: 0.35s;
+}
+
+.version-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.05rem 0.35rem;
+  margin-left: 0.4rem;
+  vertical-align: middle;
 }
 
 @keyframes fade-in {
@@ -335,67 +305,138 @@ body {
   }
 }
 
-.app-nav {
-  display: flex;
-  gap: 1.5rem;
-  border-top: 1px solid var(--border);
-  padding-top: 0.1rem;
-}
+/* ==========================================================
+   LE PLAN — viewport CAO : les fiches sont posees cote a cote sur
+   un plan horizontal ; on ne "navigue" pas un menu, on se deplace
+   sur ce plan (translation + leger effet de recul optique).
+   ========================================================== */
 
-.nav-btn {
-  border: none;
-  background: none;
-  box-shadow: none;
-  min-height: auto;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.9rem;
-  padding: 0.85rem 0 0.75rem;
+.plan {
+  flex: 1 1 auto;
+  min-height: 0;
   position: relative;
-  transition: color 0.15s ease;
-}
-
-.nav-btn:hover {
-  color: var(--text);
-}
-
-.nav-btn.active {
-  color: var(--text);
-}
-
-.nav-btn.active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
-}
-
-/* ---------- Zone de travail ---------- */
-
-main {
-  position: relative;
+  overflow: hidden;
   z-index: 1;
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .plan.zoom-pulse {
+    animation: zoom-pulse 0.5s ease;
+  }
+}
+
+@keyframes zoom-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.985); }
+  100% { transform: scale(1); }
+}
+
+.plan-surface {
+  display: flex;
+  height: 100%;
+  width: max-content;
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-surface {
+    transition: none;
+  }
+}
+
+/* Largeur de chaque fiche = largeur du plan visible, posée en JS
+   (--pane-w) pour que le pas de translation de .plan-surface soit
+   toujours exact, y compris sur grand écran où le contenu lisible
+   reste centré dans .view-inner pendant que la fiche (fond quadrillé,
+   perforations) occupe elle tout le pas. */
+.view {
+  flex: 0 0 var(--pane-w, 100vw);
+  width: var(--pane-w, 100vw);
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  padding: 2.5rem 1.4rem 3rem 2.4rem;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 36px 36px;
+  border-left: 1px solid var(--border);
+}
+
+.view:first-child {
+  border-left: none;
+}
+
+.view-inner {
   max-width: 620px;
   margin: 0 auto;
-  padding: 2.25rem 1.25rem 3rem;
 }
 
-.view {
-  display: none;
+/* Bande de perforations sur le bord gauche de chaque fiche — clin d'oeil
+   au classeur d'atelier, en pur CSS (aucune image). */
+.view::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 16px;
+  background-image: radial-gradient(circle at 8px 18px, var(--bg) 3px, var(--border) 3.5px, transparent 4px);
+  background-size: 16px 36px;
+  background-repeat: repeat-y;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
-#view-devis.active {
+#view-devis {
   padding-bottom: 4.5rem;
 }
 
-.view.active {
-  display: block;
+/* Onglet de classeur, epingle en haut de la fiche pendant le defilement —
+   repere visuel constant puisque la regle de navigation est loin, en bas. */
+.fiche-onglet {
+  position: sticky;
+  top: -2.5rem;
+  z-index: 3;
+  display: inline-block;
+  margin: -2.5rem 0 1.5rem -0.6rem;
+  padding: 0.3rem 0.9rem 0.35rem;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-top: none;
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Effet d'arrivee sur une fiche fraichement rejointe via la reglette —
+   pas une simple decoration : c'est la lecture "on se pose ici". */
+.view.fiche-arrivee > .fiche-onglet,
+.view.fiche-arrivee > h2,
+.view.fiche-arrivee > .view-intro,
+.view.fiche-arrivee > .accueil-choix,
+.view.fiche-arrivee > form,
+.view.fiche-arrivee > .lien-retour {
+  animation: fiche-lift 0.45s ease both;
+}
+
+@keyframes fiche-lift {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view.fiche-arrivee > * {
+    animation: none;
+  }
 }
 
 .view h2 {
@@ -532,7 +573,7 @@ input[type="number"],
 
 .carte-choix:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 30px -10px var(--accent-glow);
+  box-shadow: var(--shadow-hard-accent);
 }
 
 .carte-choix-titre {
@@ -556,13 +597,15 @@ input[type="number"],
 /* ---------- Resultat -- le moment fort de l'ecran ---------- */
 
 .result-box {
+  position: relative;
+  overflow: visible;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.75rem 1.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
-  box-shadow: 0 0 50px -12px var(--accent-glow);
+  box-shadow: var(--shadow-hard-accent);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -571,9 +614,9 @@ input[type="number"],
 }
 
 @keyframes result-flash {
-  0%   { box-shadow: 0 0 50px -12px var(--accent-glow); border-color: var(--border); }
-  30%  { box-shadow: 0 0 60px 4px var(--accent-glow); border-color: var(--accent); }
-  100% { box-shadow: 0 0 50px -12px var(--accent-glow); border-color: var(--border); }
+  0%   { box-shadow: var(--shadow-hard-accent); border-color: var(--border); }
+  30%  { box-shadow: 6px 6px 0 0 var(--accent); border-color: var(--accent); }
+  100% { box-shadow: var(--shadow-hard-accent); border-color: var(--border); }
 }
 
 .result-box p {
@@ -603,16 +646,14 @@ input[type="number"],
 /* ---------- Barre de prix flottante (toujours visible en scrollant) ---------- */
 
 .barre-prix-flottante {
-  position: fixed;
-  left: 0;
-  right: 0;
+  position: sticky;
   bottom: 0;
   z-index: 900;
   display: flex;
   gap: 1.5rem;
+  margin: 0 -1.4rem 0 -2.4rem;
   padding: 0.65rem 1.25rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
   background: var(--header-bg-solid);
-  backdrop-filter: blur(10px);
   border-top: 1px solid var(--border);
 }
 
@@ -659,7 +700,7 @@ input[type="number"],
   background: var(--accent);
   border: 1px solid var(--accent);
   color: #fff;
-  box-shadow: 0 0 20px -4px var(--accent-glow);
+  box-shadow: var(--shadow-hard-accent);
 }
 
 #btn-calculer:hover {
@@ -870,17 +911,20 @@ input[type="number"],
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.6rem;
+  min-width: 0;
 }
 
 .matiere-carte-champs label {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   font-size: 0.72rem;
   color: var(--text-muted);
   gap: 0.3rem;
 }
 
 .matiere-carte-champs input {
+  min-width: 0;
   padding: 0.5rem 0.5rem;
   min-height: 44px;
   border: 1px solid var(--border);
@@ -891,16 +935,192 @@ input[type="number"],
   font-size: 0.85rem;
 }
 
-/* ---------- Pied de page ---------- */
+/* ==========================================================
+   LA REGLETTE — instrument de navigation en bas d'ecran, façon
+   pied a coulisse : un curseur (vernier) coulisse sur une regle
+   graduee, affiche la section active comme un afficheur de mesure.
+   ========================================================== */
 
-.app-footer {
+.regle {
+  flex: 0 0 68px;
   position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 2rem 1.5rem;
-  color: var(--text-muted);
-  font-size: 0.78rem;
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-elevated);
   border-top: 1px solid var(--border);
+}
+
+.regle-rail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--border) 0,
+    var(--border) 1px,
+    transparent 1px,
+    transparent 9px
+  );
+}
+
+.regle-curseur {
+  position: absolute;
+  top: -1px;
+  width: 2px;
+  height: 33px;
+  background: var(--accent);
+  transform: translateX(-1px);
+  transition: left 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  cursor: grab;
+  touch-action: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regle-curseur {
+    transition: none;
+  }
+}
+
+.regle-curseur:active {
+  cursor: grabbing;
+}
+
+.regle-curseur::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--accent);
+}
+
+.regle-curseur:focus-visible {
+  outline: none;
+}
+
+.regle-curseur:focus-visible::after {
+  filter: drop-shadow(0 0 3px var(--accent-glow));
+}
+
+.regle-lecture {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 5px;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent);
+  padding: 0.12rem 0.4rem;
+}
+
+.regle-graduations {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin-top: 24px;
+}
+
+.regle-tick {
+  min-height: auto;
+  min-width: 0;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  padding: 0.5rem 0.15rem 0;
+  text-align: center;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.regle-tick:active {
+  transform: none;
+  box-shadow: none;
+}
+
+.regle-tick:first-child {
+  border-left: none;
+}
+
+.regle-tick:hover {
+  color: var(--text);
+}
+
+.regle-tick.active {
+  color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .regle-tick span {
+    display: none;
+  }
+  .regle-tick {
+    position: relative;
+  }
+  .regle-tick.active::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+}
+
+/* ==========================================================
+   LE TAMPON — s'imprime sur le resultat a l'enregistrement d'un
+   devis, comme un tampon encreur de bon-a-tirer d'atelier.
+   ========================================================== */
+
+.tampon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 20;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+  padding: 0.55rem 0.9rem;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-10deg) scale(1);
+  background: var(--bg-elevated);
+}
+
+.tampon-jouer {
+  animation: tampon-anim 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes tampon-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-16deg) scale(2.2); }
+  55%  { opacity: 1; transform: translate(-50%, -50%) rotate(-10deg) scale(0.94); }
+  75%  { transform: translate(-50%, -50%) rotate(-10deg) scale(1.04); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(-10deg) scale(1); }
 }
 
 /* ---------- Lignes répétables (opérations, sous-traitance) ---------- */
