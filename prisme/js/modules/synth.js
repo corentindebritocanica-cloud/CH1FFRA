@@ -648,7 +648,7 @@ export async function create(ctx) {
   d.segment(TIMBRES.map((t) => ({ value: t.id, label: t.label })), state.timbre, (v) => { state.timbre = v; });
   d.row();
   const compT = d.toggle('Compositeur', false, (v) => setComposer(v));
-  d.toggle('Enregistrer', false, (v) => setRecording(v), { cls: 'rec' });
+  if (!ctx.preview) d.toggle('Enregistrer', false, (v) => setRecording(v), { cls: 'rec' });
   if (navigator.requestMIDIAccess) d.toggle('MIDI', false, (v) => enableMidi(v));
   d.slider('Tempo', { min: 60, max: 140, step: 1, value: state.tempo, format: (v) => `${v} bpm` }, (v) => { state.tempo = v; engine?.setTempo(v); });
 

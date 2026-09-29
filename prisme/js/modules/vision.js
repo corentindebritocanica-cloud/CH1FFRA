@@ -424,7 +424,7 @@ export async function create(ctx) {
     ctx.toast(EFFECTS[i].label, { duration: 900 });
   }
   d.row();
-  d.button('Déclencher', () => document.getElementById('btn-capture')?.click(), { accent: '#ffd23f' });
+  if (!ctx.preview) d.button('Déclencher', () => document.getElementById('btn-capture')?.click(), { accent: '#ffd23f' });
   if (navigator.mediaDevices?.getUserMedia) {
     d.button('Retourner', async () => {
       state.facing = state.facing === 'user' ? 'environment' : 'user';
@@ -434,7 +434,7 @@ export async function create(ctx) {
   d.button('Importer', () => fileInput.click());
   d.slider('Intensité', { min: 0, max: 1, step: 0.01, value: state.amount, format: (v) => `${Math.round(v * 100)} %` }, (v) => { state.amount = v; });
 
-  ctx.hint('Glissez pour changer de filtre', 'Huit filtres GPU en direct. Le déclencheur enregistre l’image.');
+  ctx.hint('Glissez pour changer de filtre', ctx.preview ? 'Huit filtres GPU en direct. « Importer » accepte une photo ou une vidéo.' : 'Huit filtres GPU en direct. Le déclencheur enregistre l’image.');
 
   return {
     shortcuts: [['← / →', 'Filtre précédent / suivant']],

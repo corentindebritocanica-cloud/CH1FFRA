@@ -7,6 +7,8 @@ import {
 import { gpuName } from './core/gl.js';
 
 const VERSION = '1.0.0';
+// Aperçu intégré (claude.ai) : service worker, téléchargements, partage et installation y sont indisponibles.
+const PREVIEW = !!window.PRISME_PREVIEW;
 
 /* Les six rayons du prisme : chaque expérience porte sa longueur d'onde réelle. */
 const MODULES = [
@@ -285,6 +287,7 @@ function makeContext(meta) {
       setStatus: (text) => { $('#stage-status').textContent = text || ''; },
       toast, haptic, loop, settings, isIOS, isTouch,
       quality: quality(),
+      preview: PREVIEW,
       requestMotion,
       onCleanup: (fn) => cleanups.push(fn),
       hint(title, text) {
@@ -311,7 +314,7 @@ async function mount(meta) {
   try {
     const mod = await meta.load();
     const instance = await mod.create(ctx);
-    $('#btn-capture').hidden = !instance?.capture;
+    $('#btn-capture').hidden = PREVIEW || !instance?.capture;
     markScrollingRows();
     return { meta, instance, cleanups, info: mod.info };
   } catch (err) {
@@ -414,6 +417,7 @@ function setImmersive(on) {
 }
 
 async function capture() {
+  if (PREVIEW) { toast('Capture disponible dans l’app installée', { type: 'warn' }); return; }
   if (!current?.instance?.capture) { toast('Capture indisponible ici', { type: 'warn' }); return; }
   const flash = $('#flash');
   flash.classList.remove('go');
@@ -513,8 +517,10 @@ function settingsView() {
   );
 
   const installRow = h('div', { class: 'row' },
-    h('div', { class: 'row-text' }, h('b', {}, 'Application'), h('span', {}, isStandalone() ? `Installée · mode ${displayMode()}` : 'Ajoutez Prisme à votre écran d’accueil.')));
-  if (!isStandalone()) {
+    h('div', { class: 'row-text' }, h('b', {}, 'Application'), h('span', {}, PREVIEW
+      ? 'Aperçu dans claude.ai. Publiez Prisme sur GitHub Pages pour l’installer (voir le README).'
+      : isStandalone() ? `Installée · mode ${displayMode()}` : 'Ajoutez Prisme à votre écran d’accueil.')));
+  if (!isStandalone() && !PREVIEW) {
     const b = h('button', { class: 'btn primary', type: 'button' }, 'Installer');
     b.addEventListener('click', () => install());
     installRow.append(b);
@@ -566,6 +572,7 @@ onSetting((key) => {
 
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
+  if (PREVIEW) return;
   e.preventDefault();
   deferredPrompt = e;
   $('#btn-install').hidden = false;
@@ -576,7 +583,7 @@ window.addEventListener('appinstalled', () => {
   toast('Prisme est installée', { duration: 3500 });
   haptic('success');
 });
-if (isIOS && !isStandalone()) $('#btn-install').hidden = false;
+if (isIOS && !isStandalone() && !PREVIEW) $('#btn-install').hidden = false;
 $('#btn-install').addEventListener('click', () => install());
 
 async function install() {
@@ -617,6 +624,7 @@ function setSwStatus(state, text) {
   if (s) s.textContent = text;
 }
 async function registerSW() {
+  if (PREVIEW) { setSwStatus('pending', 'Aperçu · hors-ligne une fois installée'); return; }
   if (!('serviceWorker' in navigator)) { setSwStatus('error', 'Hors-ligne indisponible'); return; }
   try {
     const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
@@ -688,14 +696,14 @@ function commands() {
   const list = MODULES.map((m, i) => ({ label: `Ouvrir ${m.name}`, sub: m.tag, key: String(i + 1), color: m.color, run: () => open(m.id) }));
   if (current) {
     list.push({ label: 'Retour à l’accueil', key: 'Échap', run: () => close() });
-    list.push({ label: 'Capturer l’image', key: 'S', run: () => capture() });
+    if (!PREVIEW) list.push({ label: 'Capturer l’image', key: 'S', run: () => capture() });
     list.push({ label: 'Masquer l’interface', key: 'H', run: () => setImmersive(true) });
     list.push({ label: 'Comment ça marche', run: () => $('#btn-info').click() });
   }
   list.push({ label: settings.fps ? 'Masquer le compteur d’images' : 'Afficher le compteur d’images', key: 'P', run: () => setSetting('fps', !settings.fps) });
   list.push({ label: 'Réglages', run: () => $('#btn-settings').click() });
   if (document.fullscreenEnabled) list.push({ label: document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran', key: 'F', run: () => toggleFullscreen() });
-  if (!isStandalone()) list.push({ label: 'Installer l’application', run: () => install() });
+  if (!isStandalone() && !PREVIEW) list.push({ label: 'Installer l’application', run: () => install() });
   list.push({ label: 'Raccourcis clavier', key: '?', run: () => showHelp() });
   return list;
 }
@@ -772,8 +780,9 @@ function boot() {
   updateFpsHud();
   $('#app-version').textContent = `v${VERSION}`;
   const splash = $('#splash');
-  if (store.get('seen-splash', false) && sessionStorage.getItem('prisme-splash')) splash.classList.add('skip');
-  try { sessionStorage.setItem('prisme-splash', '1'); } catch { /* ignoré */ }
+  let seenThisSession = false;
+  try { seenThisSession = !!sessionStorage.getItem('prisme-splash'); sessionStorage.setItem('prisme-splash', '1'); } catch { /* stockage bloqué */ }
+  if (store.get('seen-splash', false) && seenThisSession) splash.classList.add('skip');
   store.set('seen-splash', true);
   setTimeout(() => splash.remove(), 1800);
   const id = location.hash.slice(1);
