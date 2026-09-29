@@ -352,16 +352,20 @@ function withTransition(update, card) {
   return t.finished.finally(() => { stage.style.viewTransitionName = ''; });
 }
 
+let navSeq = 0; // chaque navigation invalide les chargements en cours
+
 async function open(id, card, { push = true } = {}) {
   const meta = byId[id];
   if (!meta || opening) return;
   if (current?.meta.id === id) return;
   opening = true;
+  const seq = ++navSeq;
   closeSheet(true);
   closePalette();
-  if (current) unmount();
+  if (current) { unmount(); current = null; }
   card ??= document.querySelector(`.card[data-id="${id}"]`);
   meta.load().catch(() => {});
+  if (push && location.hash !== `#${id}`) history.pushState({ id }, '', `#${id}`);
   await withTransition(() => {
     home.hidden = true;
     stage.hidden = false;
@@ -369,17 +373,26 @@ async function open(id, card, { push = true } = {}) {
     $('#btn-reveal').hidden = true;
     $('#stage-title').textContent = meta.name;
   }, card);
-  if (push && location.hash !== `#${id}`) history.pushState({ id }, '', `#${id}`);
-  current = { ...(await mount(meta)), card };
-  keepAwake(true);
+  if (seq !== navSeq) { opening = false; return; }
+  const mounted = { ...(await mount(meta)), card };
   opening = false;
+  if (seq !== navSeq) {
+    // Retour demandé pendant le chargement : on libère aussitôt le module.
+    current = mounted;
+    unmount();
+    current = null;
+    return;
+  }
+  current = mounted;
+  keepAwake(true);
   document.title = `${meta.name} · Prisme`;
 }
 
 async function close({ fromPop = false } = {}) {
-  if (!current) return;
-  const { card } = current;
-  unmount();
+  if (!current && !opening) return;
+  navSeq++;
+  const card = current?.card;
+  if (current) unmount();
   current = null;
   keepAwake(false);
   closeSheet(true);
@@ -398,7 +411,7 @@ async function close({ fromPop = false } = {}) {
 window.addEventListener('popstate', () => {
   const id = location.hash.slice(1);
   if (byId[id]) open(id, null, { push: false });
-  else if (current) close({ fromPop: true });
+  else if (current || opening) close({ fromPop: true });
 });
 
 $('#btn-back').addEventListener('click', () => { haptic('light'); if (history.state?.id) history.back(); else close(); });
