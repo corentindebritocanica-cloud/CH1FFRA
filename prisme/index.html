@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Prisme</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="description" content="Prisme : six expériences temps réel (son, 3D, vision, fluides, particules, diagnostic) calculées sur votre appareil, hors-ligne.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#07080d">
+<meta name="application-name" content="Prisme">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Prisme">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-TileColor" content="#07080d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- iPhone 16 Pro Max : 440×956 pt @3x -->
+<link rel="apple-touch-startup-image" href="icons/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash-2868x1320.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)">
+<link rel="preload" href="fonts/unbounded.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<link rel="modulepreload" href="js/app.js">
+</head>
+<body>
+
+<!-- Pictogrammes -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-spectrum" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#ff4d5e"/><stop offset=".2" stop-color="#ff8a3d"/><stop offset=".4" stop-color="#ffd23f"/>
+      <stop offset=".6" stop-color="#45e08a"/><stop offset=".8" stop-color="#3db2ff"/><stop offset="1" stop-color="#9b6bff"/>
+    </linearGradient>
+  </defs>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></g></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></g></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></g></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></g></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11M8 7.2l4-3.7 4 3.7"/><path d="M8.5 10.5H6v10h12v-10h-2.5"/></g></symbol>
+  <symbol id="i-plus-square" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M12 8v8M8 12h8"/></g></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></g></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div id="app" class="app">
+
+  <!-- ACCUEIL -->
+  <main id="home" class="home" aria-label="Accueil">
+    <div class="titlebar-drag" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Prisme, accueil">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 L29 27 H3 Z" fill="none" stroke="url(#g-spectrum)" stroke-width="2.2" stroke-linejoin="round"/></svg>
+        <span class="brand-word">Prisme</span>
+      </a>
+      <div class="topbar-actions">
+        <button id="btn-install" class="pill-btn" type="button" hidden>
+          <svg class="ico" aria-hidden="true"><use href="#i-plus-square"/></svg><span>Installer</span>
+        </button>
+        <button id="btn-palette" class="icon-btn only-desktop" type="button" aria-label="Rechercher une commande (Ctrl+K)" title="Commandes (Ctrl+K)">
+          <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+        </button>
+        <button id="btn-settings" class="icon-btn" type="button" aria-label="Réglages">
+          <svg class="ico" aria-hidden="true"><use href="#i-gear"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="hero-eyebrow mono" id="device-line">Analyse de l'appareil…</p>
+      <h1 id="hero-title" class="hero-title">Un faisceau,<br><span class="spectral">six expériences.</span></h1>
+      <div class="beam" id="beam" aria-hidden="true"></div>
+      <p class="hero-lede">Son, 3D, vision, fluides et particules calculés en direct par votre appareil. Rien ne part sur un serveur, et tout fonctionne hors-ligne.</p>
+    </section>
+
+    <section class="grid" id="grid" aria-label="Expériences"></section>
+
+    <footer class="foot mono">
+      <span id="sw-status" class="status-dot" data-state="pending">Préparation du mode hors-ligne</span>
+      <span class="only-desktop">Raccourcis : <kbd>1</kbd>–<kbd>6</kbd> ouvrir · <kbd>Échap</kbd> retour · <kbd>Ctrl</kbd>+<kbd>K</kbd> commandes · <kbd>?</kbd> aide</span>
+      <span id="app-version">v1.0.0</span>
+    </footer>
+  </main>
+
+  <!-- SCÈNE -->
+  <section id="stage" class="stage" hidden aria-live="polite">
+    <div id="stage-host" class="stage-host"></div>
+    <div class="stage-ui">
+      <div class="stage-top">
+        <button id="btn-back" class="icon-btn glass" type="button" aria-label="Retour à l'accueil (Échap)">
+          <svg class="ico" aria-hidden="true"><use href="#i-back"/></svg>
+        </button>
+        <div class="title-pill glass" id="title-pill">
+          <span class="title-name" id="stage-title">—</span>
+          <span class="title-status mono" id="stage-status"></span>
+        </div>
+        <div class="stage-actions">
+          <button id="btn-capture" class="icon-btn glass" type="button" aria-label="Capturer l'image (S)">
+            <svg class="ico" aria-hidden="true"><use href="#i-camera"/></svg>
+          </button>
+          <button id="btn-info" class="icon-btn glass" type="button" aria-label="Comment ça marche">
+            <svg class="ico" aria-hidden="true"><use href="#i-info"/></svg>
+          </button>
+          <button id="btn-immersive" class="icon-btn glass" type="button" aria-label="Masquer l'interface (H)">
+            <svg class="ico" aria-hidden="true"><use href="#i-eye"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="dock" class="dock glass" role="toolbar" aria-label="Commandes de l'expérience"></div>
+    </div>
+    <button id="btn-reveal" class="reveal glass mono" type="button" hidden>Afficher l'interface</button>
+    <div id="flash" class="flash" aria-hidden="true"></div>
+  </section>
+
+  <!-- FEUILLE (réglages, infos, installation) -->
+  <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+  <section id="sheet" class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <header class="sheet-head">
+      <h2 id="sheet-title" class="sheet-title">—</h2>
+      <button id="sheet-close" class="icon-btn" type="button" aria-label="Fermer">
+        <svg class="ico" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </header>
+    <div id="sheet-body" class="sheet-body"></div>
+  </section>
+
+  <!-- PALETTE DE COMMANDES -->
+  <div id="palette" class="palette" role="dialog" aria-modal="true" aria-label="Palette de commandes" hidden>
+    <div class="palette-box glass">
+      <label class="palette-field">
+        <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="palette-input" type="text" autocomplete="off" spellcheck="false" placeholder="Tapez une commande…" aria-controls="palette-list">
+        <kbd>Échap</kbd>
+      </label>
+      <ul id="palette-list" class="palette-list" role="listbox"></ul>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="fps-hud" class="fps-hud mono glass" hidden><canvas id="fps-canvas" width="120" height="28"></canvas><span id="fps-text">— ips</span></div>
+</div>
+
+<!-- Déclencheur haptique iOS (Safari 18+) : basculer un interrupteur natif produit un retour haptique -->
+<label id="haptic-label" class="haptic-proxy" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
+
+<div id="splash" class="splash" aria-hidden="true">
+  <svg viewBox="0 0 200 120" class="splash-svg">
+    <path class="splash-in" d="M0 70 L86 62" />
+    <path class="splash-prism" d="M100 22 L132 86 H68 Z" />
+    <g class="splash-out">
+      <path d="M114 62 L200 30" stroke="#ff4d5e"/><path d="M114 63 L200 44" stroke="#ff8a3d"/><path d="M115 64 L200 58" stroke="#ffd23f"/>
+      <path d="M115 65 L200 72" stroke="#45e08a"/><path d="M114 66 L200 86" stroke="#3db2ff"/><path d="M114 67 L200 100" stroke="#9b6bff"/>
+    </g>
+  </svg>
+</div>
+
+<noscript><p class="noscript">Prisme a besoin de JavaScript pour fonctionner.</p></noscript>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
